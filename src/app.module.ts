@@ -5,7 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { configuration } from './config/configurations';
 import { JwtModule } from '@nestjs/jwt';
 import { MeetingsModule } from './modules/meetings/meetings.module';
-
+import { SecurityModule } from './modules/security/security.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
@@ -18,7 +18,8 @@ import { MeetingsModule } from './modules/meetings/meetings.module';
       secret: process.env.secret,
       signOptions: { expiresIn: '60d' },
     }),
-	    MeetingsModule,
+    MeetingsModule,
+    SecurityModule,
   ],
   controllers: [],
   providers: [AppService],
