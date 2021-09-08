@@ -8,9 +8,10 @@ import { MeetingDtoRepository } from './infrastructure/repositories/meeting-dto.
 import { MeetingSchemaFactory } from './infrastructure/schemas/meeting-schema.factory';
 import { MeetingCommandHandlers } from './application/commands';
 import { MeetingFactory } from './domain/MeetingFactory';
-import { MeetingController } from './interfaces/controller/meeting.controller';
+import { MeetingController } from './interfaces/rest/meeting.controller';
 import { MeetingQueryHandlers } from './application/queries';
 import { JwtModule } from '@nestjs/jwt';
+import { MeetingGateway } from './interfaces/socket/meeting.gateway';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { JwtModule } from '@nestjs/jwt';
     MeetingFactory,
     ...MeetingCommandHandlers,
     ...MeetingQueryHandlers,
+    MeetingGateway,
   ],
 })
 export class MeetingsModule {}

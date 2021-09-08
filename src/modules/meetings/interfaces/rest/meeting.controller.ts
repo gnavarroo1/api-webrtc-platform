@@ -33,7 +33,7 @@ export class MeetingController {
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
-  
+
   @Get(':id/token')
   async getMeetingToken(
     @Headers() header: any,
@@ -88,25 +88,25 @@ export class MeetingController {
     );
   }
 
-  @Post(':id/participants')
-  async addParticipant(
-    @Headers() header: any,
-    @Param('id') meetingId: string,
-    @Body() request: any,
-  ): Promise<AddMeetingParticipantResponse> {
-    const token = header['authorization'];
-    const addParticipantRequest: AddMeetingParticipantRequest = {
-      meetingId: meetingId,
-      id: request.id,
-      userType: request.userType,
-      alias: request.alias,
-      usertoken: token.substring(7, token.length),
-    };
-    return this.commandBus.execute<
-      AddMeetingParticipantCommand,
-      AddMeetingParticipantResponse
-    >(new AddMeetingParticipantCommand(addParticipantRequest));
-  }
+  // @Post(':id/participants')
+  // async addParticipant(
+  //   @Headers() header: any,
+  //   @Param('id') meetingId: string,
+  //   @Body() request: any,
+  // ): Promise<AddMeetingParticipantResponse> {
+  //   const token = header['authorization'];
+  //   const addParticipantRequest: AddMeetingParticipantRequest = {
+  //     meetingId: meetingId,
+  //     id: request.id,
+  //     userType: request.userType,
+  //     alias: request.alias,
+  //     usertoken: token.substring(7, token.length),
+  //   };
+  //   return this.commandBus.execute<
+  //     AddMeetingParticipantCommand,
+  //     AddMeetingParticipantResponse
+  //   >(new AddMeetingParticipantCommand(addParticipantRequest));
+  // }
 
   @Put(':id/participants/:idParticipant')
   async updateParticipant(

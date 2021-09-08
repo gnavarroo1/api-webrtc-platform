@@ -19,6 +19,7 @@ export class AddMeetingParticipantHandler
 
   async execute({
     addMeetingParticipantRequest,
+    socketId,
   }: AddMeetingParticipantCommand): Promise<AddMeetingParticipantResponse> {
     const meeting = await this.meetingEntityRepository.findOneAttr({
       _id: addMeetingParticipantRequest.meetingId,
@@ -37,11 +38,13 @@ export class AddMeetingParticipantHandler
     const user: UserDto = {
       userType: addMeetingParticipantRequest.userType,
       _id: addMeetingParticipantRequest.id,
+      socketId: socketId,
       hasVideo: true,
       hasAudio: true,
       alias: addMeetingParticipantRequest.alias
         ? addMeetingParticipantRequest.alias
         : addMeetingParticipantRequest.id,
+      active: true,
     };
     meeting.addParticipant(user);
     await this.meetingEntityRepository.findOneAndReplaceByAttr(
@@ -49,7 +52,7 @@ export class AddMeetingParticipantHandler
       meeting,
     );
     meeting.commit();
-
+    console.log('here');
     return {
       participants: meeting.getParticipants(),
       isMeetingCreator: meeting.getMeetingCreatorId() === decoded.sub,
