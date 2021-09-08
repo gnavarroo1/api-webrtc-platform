@@ -4,7 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { configuration } from './config/configurations';
 import { JwtModule } from '@nestjs/jwt';
-
+import { MeetingsModule } from './modules/meetings/meetings.module';
 
 @Module({
   imports: [
@@ -15,9 +15,10 @@ import { JwtModule } from '@nestjs/jwt';
       useUnifiedTopology: true,
     }),
     JwtModule.register({
-      secret: process.env.secret || 'secret123',
+      secret: process.env.secret,
       signOptions: { expiresIn: '60d' },
     }),
+	    MeetingsModule,
   ],
   controllers: [],
   providers: [AppService],
