@@ -34,6 +34,7 @@ export class SecurityController {
     @Headers() headers,
     @Body() createUserRequest: CreateUserRequest,
   ): Promise<any> {
+    console.log(createUserRequest);
     return await this.commandBus.execute<CreateUserCommand, void>(
       new CreateUserCommand(createUserRequest, headers),
     );
@@ -43,8 +44,8 @@ export class SecurityController {
     this.logger.log(headers);
     const tmp = {
       username: randomUUID(),
-      firstname: '',
-      lastname: '',
+      firstName: randomUUID(),
+      lastName: randomUUID(),
       email: randomUUID(),
       password: randomUUID(),
       isTemporary: true,

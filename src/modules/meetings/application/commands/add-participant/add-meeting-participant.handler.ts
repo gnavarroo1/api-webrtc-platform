@@ -43,6 +43,7 @@ export class AddMeetingParticipantHandler
         ? addMeetingParticipantRequest.alias
         : addMeetingParticipantRequest.id,
     };
+
     meeting.addParticipant(user);
     await this.meetingEntityRepository.findOneAndReplaceByAttr(
       { _id: addMeetingParticipantRequest.meetingId, active: true },

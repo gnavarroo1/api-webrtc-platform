@@ -29,6 +29,7 @@ export class UserFactory implements EntityFactory<User> {
         .pbkdf2Sync(password, this.salt, 10000, 512, 'sha512')
         .toString('hex'),
     );
+    // console.log(user);
     await this.userEntityRepository.create(user);
     return user;
   }

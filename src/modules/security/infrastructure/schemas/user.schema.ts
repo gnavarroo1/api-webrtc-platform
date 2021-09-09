@@ -4,15 +4,15 @@ import * as crypto from 'crypto';
 
 @Schema({ versionKey: false, collection: 'users' })
 export class UserSchema extends IdentifiableEntitySchema {
-  @Prop()
+  @Prop({ type: String, required: true })
   readonly firstname: string;
-  @Prop()
+  @Prop({ type: String, required: true })
   readonly lastname: string;
-  @Prop({ required: true, unique: true })
+  @Prop({ type: String, required: true, unique: true })
   readonly username: string;
-  @Prop()
+  @Prop({ type: String, required: true, unique: true })
   readonly email: string;
-  @Prop()
+  @Prop({ type: Boolean, default: false })
   readonly isTemporary: boolean;
   @Prop()
   salt: string;

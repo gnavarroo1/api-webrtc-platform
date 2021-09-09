@@ -44,19 +44,13 @@ export class Meeting extends AggregateRoot {
       participant.userType !== 'PARTICIPANT' &&
       participant.userType !== 'OBSERVER'
     ) {
-      throw new HttpException(
-        'THE USER IS ALREADY ON THE MEETING!',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException('INVALID USER!', HttpStatus.BAD_REQUEST);
     }
     const idx = this.participants.findIndex((value) => {
       return value._id === participant._id;
     });
     if (idx !== -1) {
-      throw new HttpException(
-        'THE USER IS ALREADY ON THE MEETING!',
-        HttpStatus.CONFLICT,
-      );
+      this.updateParticipant(participant, idx);
     }
     this.participants.push(participant);
   }

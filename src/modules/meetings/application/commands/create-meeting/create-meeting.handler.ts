@@ -21,32 +21,31 @@ export class CreateMeetingHandler
   }: CreateMeetingCommand): Promise<CreateMeetingResponse> {
     const { name, meetingCreatorId } = createMeetingRequest;
     //Validate that the token exists
-    if( !meetingCreatorId ){
+    if (!meetingCreatorId) {
       throw new HttpException(
         ErrorMessage.CREDENTIALS_ERROR,
         HttpStatus.UNAUTHORIZED,
       );
     }
-    return this.jwtService.verifyAsync(meetingCreatorId).then( async(verify)=>{
-      const meeting = this.eventPublisher.mergeObjectContext(
-        await this.meetingFactory.create(name, verify.sub),
-      );
-      meeting.commit();
-      return {
-        id: meeting.getId(),
-        name: meeting.getName(),
-      };
-    }).catch((e)=>{
-      throw new HttpException(
-        e.message,
-        HttpStatus.UNAUTHORIZED,
-      );
-    })
+
+    return this.jwtService
+      .verifyAsync(meetingCreatorId)
+      .then(async (verify) => {
+        const meeting = this.eventPublisher.mergeObjectContext(
+          await this.meetingFactory.create(name, verify.sub),
+        );
+        meeting.commit();
+        return {
+          id: meeting.getId(),
+          name: meeting.getName(),
+        };
+      })
+      .catch((e) => {
+        throw new HttpException(e.message, HttpStatus.UNAUTHORIZED);
+      });
 
     //if(this.jwtService.verify)
 
-
     //Publish meeting
-    
   }
 }
