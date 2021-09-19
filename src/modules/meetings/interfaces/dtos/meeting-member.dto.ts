@@ -1,6 +1,8 @@
-export class UserDto {
-  readonly _id: string;
-  readonly alias: string;
+import { Types } from 'mongoose';
+
+export class MeetingMemberDto {
+  readonly _id: Types.ObjectId;
+  readonly nickname: string;
   readonly hasAudio: boolean = true;
   readonly hasVideo: boolean = true;
   readonly userType: string;

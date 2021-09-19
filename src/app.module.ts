@@ -6,6 +6,7 @@ import { configuration } from './config/configurations';
 import { JwtModule } from '@nestjs/jwt';
 import { MeetingsModule } from './modules/meetings/meetings.module';
 import { SecurityModule } from './modules/security/security.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { SecurityModule } from './modules/security/security.module';
     }),
     MeetingsModule,
     SecurityModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [AppService],

@@ -1,9 +1,8 @@
-import { ObjectId } from 'mongoose';
-import { UserDto } from './user.dto';
+import { Types } from 'mongoose';
 
 export class MeetingDto {
   readonly _id?: string;
   readonly name?: string;
-  readonly meetingCreatorId?: string;
-  readonly participants?: UserDto[];
+  readonly meetingCreatorId?: Types.ObjectId;
+  readonly activeMembers?: any;
 }

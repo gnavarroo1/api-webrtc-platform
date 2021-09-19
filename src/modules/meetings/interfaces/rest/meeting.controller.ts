@@ -5,7 +5,6 @@ import {
   Get,
   Headers,
   Param,
-  Patch,
   Post,
   Put,
 } from '@nestjs/common';
@@ -18,14 +17,10 @@ import { TokenMeetingRequest } from '../dtos/request/token-meeting-request.dto';
 import { GenerateMeetingTokenCommand } from '../../application/commands/generate-token/generate-meeting-token.command';
 import { CreateMeetingResponse } from '../dtos/response/create-meeting-response.dto';
 import { TokenMeetingResponse } from '../dtos/response/token-meeting-response.dto';
-import { AddMeetingParticipantRequest } from '../dtos/request/add-meeting-participant-request.dto';
 import { AddMeetingParticipantResponse } from '../dtos/response/add-meeting-participant-response.dto';
-import { AddMeetingParticipantCommand } from '../../application/commands/add-participant/add-meeting-participant.command';
 import { DeleteMeetingCommand } from '../../application/commands/delete-meeting/delete-meeting.command';
 import { UpdateMeetingParticipantRequest } from '../dtos/request/update-participant-request.dto';
-import { UpdateMeetingParticipantCommand } from '../../application/commands/update-participants/update-meeting-participant.command';
-import { RemoveMeetingParticipantRequest } from '../dtos/request/remove-meeting-participant-request.dto';
-import { RemoveMeetingParticipantCommand } from '../../application/commands/remove-participant/remove-meeting-participant.command';
+import { UpdateMeetingMemberCommand } from '../../application/commands/update-member/update-meeting-member.command';
 
 @Controller('api/meetings')
 export class MeetingController {
@@ -62,7 +57,7 @@ export class MeetingController {
     @Headers() header: any,
     @Body() request: any,
   ): Promise<CreateMeetingResponse> {
-    console.log(request);
+    console.log(header['authorization']);
     const token = header['authorization'];
     const createMeetingRequest: CreateMeetingRequest = {
       name: request.name,
@@ -99,13 +94,13 @@ export class MeetingController {
   //     meetingId: meetingId,
   //     id: request.id,
   //     userType: request.userType,
-  //     alias: request.alias,
+  //     nickname: request.nickname,
   //     usertoken: token.substring(7, token.length),
   //   };
   //   return this.commandBus.execute<
-  //     AddMeetingParticipantCommand,
+  //     AddMeetingMemberCommand,
   //     AddMeetingParticipantResponse
-  //   >(new AddMeetingParticipantCommand(addParticipantRequest));
+  //   >(new AddMeetingMemberCommand(addParticipantRequest));
   // }
 
   @Put(':id/participants/:idParticipant')
@@ -118,31 +113,31 @@ export class MeetingController {
     const token = header['authorization'];
     const updateParticipantRequest: UpdateMeetingParticipantRequest = {
       meetingId: meetingId,
-      alias: request.alias,
+      nickname: request.nickname,
       participantId: participantId,
       token: token.substring(7, token.length),
     };
 
-    return this.commandBus.execute<UpdateMeetingParticipantCommand, any>(
-      new UpdateMeetingParticipantCommand(updateParticipantRequest),
+    return this.commandBus.execute<UpdateMeetingMemberCommand, any>(
+      new UpdateMeetingMemberCommand(updateParticipantRequest),
     );
   }
 
-  @Delete(':id/participants/:idParticipant')
-  async deleteParticipant(
-    @Headers() header: any,
-    @Param('id') meetingId: string,
-    @Param('idParticipant') participantId: string,
-  ): Promise<void> {
-    const token = header['authorization'];
-    const removeMeetingParticipantRequest: RemoveMeetingParticipantRequest = {
-      meetingId: meetingId,
-      userToken: token.substring(7, token.length),
-      participantId: participantId,
-    };
-    // console.log(removeMeetingParticipantRequest);
-    await this.commandBus.execute<RemoveMeetingParticipantCommand, any>(
-      new RemoveMeetingParticipantCommand(removeMeetingParticipantRequest),
-    );
-  }
+  // @Delete(':id/participants/:idParticipant')
+  // async deleteParticipant(
+  //   @Headers() header: any,
+  //   @Param('id') meetingId: string,
+  //   @Param('idParticipant') participantId: string,
+  // ): Promise<void> {
+  //   const token = header['authorization'];
+  //   const removeMeetingParticipantRequest: RemoveMeetingParticipantRequest = {
+  //     meetingId: meetingId,
+  //     userToken: token.substring(7, token.length),
+  //     participantId: participantId,
+  //   };
+  //   // console.log(removeMeetingParticipantRequest);
+  //   await this.commandBus.execute<RemoveMeetingParticipantCommand, any>(
+  //     new RemoveMeetingParticipantCommand(removeMeetingParticipantRequest),
+  //   );
+  // }
 }

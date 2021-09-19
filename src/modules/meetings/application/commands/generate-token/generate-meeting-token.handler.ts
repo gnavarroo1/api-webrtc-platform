@@ -4,7 +4,6 @@ import { GenerateMeetingTokenCommand } from './generate-meeting-token.command';
 import { MeetingDto } from '../../../interfaces/dtos/meeting.dto';
 import { MeetingDtoRepository } from '../../../infrastructure/repositories/meeting-dto.repository';
 import { RpcException } from '@nestjs/microservices';
-import { Meeting } from '../../../domain/aggregates/Meeting';
 import { TokenMeetingResponse } from '../../../interfaces/dtos/response/token-meeting-response.dto';
 
 @CommandHandler(GenerateMeetingTokenCommand)
