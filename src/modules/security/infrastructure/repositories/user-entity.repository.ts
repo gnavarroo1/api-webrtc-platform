@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model } from 'mongoose';
-import { BaseEntityRepository } from '../../../../shared/base-entity.repository';
-import { UserSchema } from '../schemas/user.schema';
+import { Model } from 'mongoose';
+import { BaseEntityRepository } from '../../../../shared/generics/base-entity.repository';
+import { UserSchema } from '../../../../shared/infrastructure/schemas/user.schema';
 import { User } from '../../domain/aggregates/User';
 import { UserSchemaFactory } from '../schemas/user-schema.factory';
-import { ObjectID } from 'mongodb';
 
 @Injectable()
 export class UserEntityRepository extends BaseEntityRepository<
@@ -19,5 +18,4 @@ export class UserEntityRepository extends BaseEntityRepository<
   ) {
     super(userModel, userSchemaFactory);
   }
-
 }

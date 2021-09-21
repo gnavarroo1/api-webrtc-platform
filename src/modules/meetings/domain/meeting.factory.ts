@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ObjectId } from 'mongodb';
-import { EntityFactory } from '../../../shared/entity.factory';
-import { Meeting } from './aggregates/Meeting';
+import { EntityFactory } from '../../../shared/generics/entity.factory';
+import { Meeting } from './aggregates/meeting.aggregate';
 import { MeetingEntityRepository } from '../infrastructure/repositories/meeting-entity.repository';
-import { UserDto } from '../interfaces/dtos/user.dto';
+import { MeetingMemberDto } from '../interfaces/dtos/meeting-member.dto';
 
 @Injectable()
 export class MeetingFactory implements EntityFactory<Meeting> {
@@ -12,16 +12,16 @@ export class MeetingFactory implements EntityFactory<Meeting> {
   ) {}
 
   async create(
-    name: string,
+    // name: string,
     meetingCreatorId: string,
-    participants: UserDto[] = [],
+    participants: MeetingMemberDto[] = [],
     active = true,
   ): Promise<Meeting> {
     const meeting = new Meeting(
       new ObjectId().toHexString(),
-      name,
+      // name,
       meetingCreatorId,
-      participants,
+      // participants,
       active,
     );
     await this.meetingEntityRepository.create(meeting);

@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { UserSchema } from '../schemas/user.schema';
+import { FilterQuery, Model } from 'mongoose';
+import { UserSchema } from '../../../../shared/infrastructure/schemas/user.schema';
+import { UserDto } from '../../interfaces/dtos/user.dto';
 
 @Injectable()
 export class UserDtoRepository {
@@ -9,4 +10,8 @@ export class UserDtoRepository {
     @InjectModel(UserSchema.name)
     private readonly userModel: Model<UserSchema>,
   ) {}
+
+  async findAttr(entityFilterQuery: FilterQuery<UserSchema>): Promise<UserDto> {
+    return this.userModel.findOne(entityFilterQuery);
+  }
 }

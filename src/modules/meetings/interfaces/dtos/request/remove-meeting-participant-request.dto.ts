@@ -1,5 +1,11 @@
+import { IsNotEmpty, IsString } from 'class-validator';
+
 export class RemoveMeetingParticipantRequest {
-  userToken?: string;
-  readonly meetingId: string;
-  readonly participantId: string;
+  @IsString()
+  @IsNotEmpty()
+  readonly userToken: string;
+
+  @IsString()
+  @IsNotEmpty()
+  readonly socketId: string;
 }

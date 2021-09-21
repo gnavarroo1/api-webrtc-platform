@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ObjectId } from 'mongodb';
-import { EntityFactory } from '../../../shared/entity.factory';
+import { EntityFactory } from '../../../shared/generics/entity.factory';
 import { User } from './aggregates/User';
 import { UserEntityRepository } from '../infrastructure/repositories/user-entity.repository';
 import * as crypto from 'crypto';
@@ -15,7 +15,8 @@ export class UserFactory implements EntityFactory<User> {
     firstname: string,
     lastname: string,
     isTemporary: boolean,
-    password: string,
+    salt: string,
+    hash: string,
   ): Promise<User> {
     const user = new User(
       new ObjectId().toHexString(),
@@ -24,12 +25,9 @@ export class UserFactory implements EntityFactory<User> {
       firstname,
       lastname,
       isTemporary,
-      this.salt,
-      crypto
-        .pbkdf2Sync(password, this.salt, 10000, 512, 'sha512')
-        .toString('hex'),
+      salt,
+      hash,
     );
-    // console.log(user);
     await this.userEntityRepository.create(user);
     return user;
   }

@@ -2,7 +2,7 @@ import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { UserFactory } from '../../../domain/UserFactory';
 import { CreateUserCommand } from './create-user.command';
 import { JwtService } from '@nestjs/jwt';
-import { HttpException, HttpStatus } from '@nestjs/common';
+import * as crypto from 'crypto';
 
 @CommandHandler(CreateUserCommand)
 export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
@@ -15,58 +15,30 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
     createUserRequest,
     headers,
   }: CreateUserCommand): Promise<any> {
-    const isTemporary = createUserRequest.isTemporary;
-    try {
-      const user = this.eventPublisher.mergeObjectContext(
-        await this.userFactory.create(
-          createUserRequest.username,
-          createUserRequest.email,
-          createUserRequest.firstName,
-          createUserRequest.lastName,
-          isTemporary,
-          createUserRequest.password,
-        ),
-      );
-      user.commit();
-      const payload = {
-        username: user.username,
-        sub: user.id,
-        isTemporary: user.isTemporary,
-      };
-
-      return {
-        accessToken: this.jwtService.sign(payload),
-      };
-    } catch (e) {
-      switch (e.name) {
-        case 'ValidationError':
-          break;
-        case 'MongoError':
-          const msg = [];
-          if ('keyValue' in e) {
-            Object.keys(e.keyValue).forEach((key) => {
-              msg.push(
-                `Invalid ${key}. The ${key} '${e.keyValue[key]}' already exists on the system.`,
-              );
-            });
-            throw new HttpException(
-              {
-                type: 'DUPLICATE',
-                msg: msg,
-                e: e,
-              },
-              HttpStatus.CONFLICT,
-            );
-          }
-      }
-
-      throw new HttpException(
-        {
-          payload: createUserRequest,
-          error: e,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    // console.log(headers);
+    const salt = crypto.randomBytes(16).toString('hex');
+    const hash = crypto
+      .pbkdf2Sync(createUserRequest.password, salt, 10000, 512, 'sha512')
+      .toString('hex');
+    const user = this.eventPublisher.mergeObjectContext(
+      await this.userFactory.create(
+        createUserRequest.username,
+        createUserRequest.email,
+        createUserRequest.firstName,
+        createUserRequest.lastName,
+        createUserRequest.isTemporary,
+        salt,
+        hash,
+      ),
+    );
+    user.commit();
+    const payload = {
+      username: user.username,
+      sub: user.id,
+      isTemporary: user.isTemporary,
+    };
+    return {
+      accessToken: this.jwtService.sign(payload),
+    };
   }
 }

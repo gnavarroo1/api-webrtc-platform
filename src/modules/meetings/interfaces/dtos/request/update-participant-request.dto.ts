@@ -1,6 +1,6 @@
 export class UpdateMeetingParticipantRequest {
   readonly meetingId: string;
   readonly participantId: string;
-  alias: string;
+  nickname: string;
   token: string;
 }

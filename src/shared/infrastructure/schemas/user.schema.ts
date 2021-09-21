@@ -1,6 +1,5 @@
 import { Prop, Schema } from '@nestjs/mongoose';
-import { IdentifiableEntitySchema } from '../../../../shared/identifiable-entity.schema';
-import * as crypto from 'crypto';
+import { IdentifiableEntitySchema } from '../../generics/identifiable-entity.schema';
 
 @Schema({ versionKey: false, collection: 'users' })
 export class UserSchema extends IdentifiableEntitySchema {
