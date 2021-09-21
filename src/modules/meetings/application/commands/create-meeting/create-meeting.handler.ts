@@ -36,15 +36,10 @@ export class CreateMeetingHandler
         meeting.commit();
         return {
           id: meeting.getId(),
-          // name: meeting.getName(),
         };
       })
       .catch((e) => {
         throw new HttpException(e.message, HttpStatus.UNAUTHORIZED);
       });
-
-    //if(this.jwtService.verify)
-
-    //Publish meeting
   }
 }

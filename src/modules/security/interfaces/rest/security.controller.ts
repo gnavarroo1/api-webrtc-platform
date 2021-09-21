@@ -23,16 +23,14 @@ export class SecurityController {
   }
   @Post('partial-sign-up')
   async createAnonUser(@Headers() headers, @Body() req): Promise<any> {
-    this.logger.log(headers);
     const tmp = {
       username: randomUUID(),
-      firstname: randomUUID(),
-      lastname: randomUUID(),
+      firstName: randomUUID(),
+      lastName: randomUUID(),
       email: randomUUID(),
       password: randomUUID(),
       isTemporary: true,
     };
-    this.logger.log(tmp);
     return await this.commandBus.execute<CreateUserCommand, void>(
       new CreateUserCommand(tmp, headers),
     );

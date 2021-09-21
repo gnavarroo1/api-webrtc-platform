@@ -24,8 +24,8 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
       await this.userFactory.create(
         createUserRequest.username,
         createUserRequest.email,
-        createUserRequest.firstname,
-        createUserRequest.lastname,
+        createUserRequest.firstName,
+        createUserRequest.lastName,
         createUserRequest.isTemporary,
         salt,
         hash,
