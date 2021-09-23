@@ -15,7 +15,6 @@ export class UserSchemaFactory
       email: entity.email,
       firstname: entity.firstname,
       lastname: entity.lastname,
-      isTemporary: entity.isTemporary,
       salt: entity.salt,
       hash: entity.hash,
     };
@@ -28,7 +27,6 @@ export class UserSchemaFactory
       entitySchema.email,
       entitySchema.firstname,
       entitySchema.lastname,
-      entitySchema.isTemporary,
       entitySchema.salt,
       entitySchema.hash,
     );

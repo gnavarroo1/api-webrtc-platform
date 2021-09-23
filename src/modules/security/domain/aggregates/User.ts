@@ -1,16 +1,12 @@
-import { BadRequestException } from '@nestjs/common';
 import { AggregateRoot } from '@nestjs/cqrs';
-import crypto from 'crypto';
 
 export class User extends AggregateRoot {
-
   constructor(
     private readonly _id: string,
     private _username: string,
     private _email: string,
     private _firstname: string,
     private _lastname: string,
-    private _isTemporary: boolean,
     private _salt: string,
     private _hash: string,
   ) {
@@ -35,10 +31,6 @@ export class User extends AggregateRoot {
 
   get lastname(): string {
     return this._lastname;
-  }
-
-  get isTemporary(): boolean {
-    return this._isTemporary;
   }
 
   get salt(): string {

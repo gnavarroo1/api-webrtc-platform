@@ -3,7 +3,6 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { configuration } from './config/configurations';
-import { JwtModule } from '@nestjs/jwt';
 import { MeetingsModule } from './modules/meetings/meetings.module';
 import { SecurityModule } from './modules/security/security.module';
 import { AuthModule } from './auth/auth.module';
@@ -15,10 +14,6 @@ import { AuthModule } from './auth/auth.module';
       useNewUrlParser: true,
       useCreateIndex: true,
       useUnifiedTopology: true,
-    }),
-    JwtModule.register({
-      secret: process.env.secret,
-      signOptions: { expiresIn: '60d' },
     }),
     MeetingsModule,
     SecurityModule,

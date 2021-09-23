@@ -24,6 +24,8 @@ import { MeetingMemberEntityRepository } from './infrastructure/repositories/mee
 import { MeetingMemberDtoRepository } from './infrastructure/repositories/meeting-member-dto.repository';
 import { MeetingMemberDocumentFactory } from './infrastructure/factories/meeting-member-document.factory';
 import { MeetingMemberFactory } from './domain/meeting-member.factory';
+import { SharedModule } from '../../shared/shared.module';
+import { MeetingEventHandlers } from './application/events';
 
 @Module({
   imports: [
@@ -38,10 +40,7 @@ import { MeetingMemberFactory } from './domain/meeting-member.factory';
         schema: MeetingMemberSchema,
       },
     ]),
-    JwtModule.register({
-      secret: process.env.secret || 'secret123',
-      signOptions: { expiresIn: '60d' },
-    }),
+    SharedModule,
   ],
   controllers: [MeetingController],
   providers: [

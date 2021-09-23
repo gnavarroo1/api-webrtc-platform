@@ -10,9 +10,8 @@ import { UserFactory } from './domain/UserFactory';
 import { UserEventHandlers } from './application/events';
 import { UserSchemaFactory } from './infrastructure/schemas/user-schema.factory';
 import { SecurityController } from './interfaces/rest/security.controller';
-import { JwtModule } from '@nestjs/jwt';
 import { SharedModule } from '../../shared/shared.module';
-import { SecurityService } from './application/services/security/security.service';
+import { SecurityService } from './application/services/security.service';
 
 @Module({
   imports: [
@@ -23,10 +22,6 @@ import { SecurityService } from './application/services/security/security.servic
         schema: SchemaFactory.createForClass(UserSchema),
       },
     ]),
-    JwtModule.register({
-      secret: process.env.secret || 'secret123',
-      signOptions: { expiresIn: '60d' },
-    }),
     SharedModule,
   ],
   controllers: [SecurityController],
@@ -39,5 +34,6 @@ import { SecurityService } from './application/services/security/security.servic
     ...UserEventHandlers,
     SecurityService,
   ],
+  exports: [SecurityService],
 })
 export class SecurityModule {}

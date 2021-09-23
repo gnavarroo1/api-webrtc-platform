@@ -14,7 +14,6 @@ export class UserFactory implements EntityFactory<User> {
     email: string,
     firstname: string,
     lastname: string,
-    isTemporary: boolean,
     salt: string,
     hash: string,
   ): Promise<User> {
@@ -24,7 +23,6 @@ export class UserFactory implements EntityFactory<User> {
       email,
       firstname,
       lastname,
-      isTemporary,
       salt,
       hash,
     );

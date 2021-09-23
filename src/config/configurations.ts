@@ -12,6 +12,14 @@ export const configuration = (): Configuration => {
       port:
         parseInt(process.env.SERVER_PORT as string, 10) || DEFAULT_SERVER_PORT,
     },
+    crypto: {
+      iterations: Number(process.env.ITERATIONS),
+      keylen: Number(process.env.KEYLEN),
+      digest: process.env.DIGEST,
+    },
+    jwt: {
+      secretOrKey: process.env.SECRET || 'secret12345',
+    },
   };
   return defaultConfiguration;
 };

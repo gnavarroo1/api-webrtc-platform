@@ -1,6 +1,14 @@
-import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { Global, Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
 
-// @Global()
-@Module({ imports: [MongooseModule.forRoot(process.env.MONGO_DB_URI)] })
+@Global()
+@Module({
+  imports: [
+    JwtModule.register({
+      secret: process.env.SECRET || 'secret123',
+      signOptions: { expiresIn: '360d' },
+    }),
+  ],
+  exports: [JwtModule],
+})
 export class SharedModule {}
