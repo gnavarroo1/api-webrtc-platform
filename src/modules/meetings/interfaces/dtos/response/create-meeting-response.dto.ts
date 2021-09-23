@@ -1,4 +1,6 @@
 export class CreateMeetingResponse {
-  readonly id: string;
-  // readonly name: string;
+  readonly _id: string;
+  readonly isActive: boolean;
+  readonly isBroadcasting: boolean;
+  readonly meetingCreatorId: string;
 }

@@ -6,7 +6,8 @@ import {
   Headers,
   Param,
   Post,
-  Put,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { MeetingDto } from '../dtos/meeting.dto';
@@ -17,10 +18,11 @@ import { TokenMeetingRequest } from '../dtos/request/token-meeting-request.dto';
 import { GenerateMeetingTokenCommand } from '../../application/commands/generate-token/generate-meeting-token.command';
 import { CreateMeetingResponse } from '../dtos/response/create-meeting-response.dto';
 import { TokenMeetingResponse } from '../dtos/response/token-meeting-response.dto';
-import { AddMeetingParticipantResponse } from '../dtos/response/add-meeting-participant-response.dto';
 import { DeleteMeetingCommand } from '../../application/commands/delete-meeting/delete-meeting.command';
-import { UpdateMeetingParticipantRequest } from '../dtos/request/update-participant-request.dto';
-import { UpdateMeetingMemberCommand } from '../../application/commands/update-member/update-meeting-member.command';
+import { JwtAuthGuard } from '../../../../auth/guards/jwt-auth.guard';
+import { MeetingBroadcastRequestDto } from '../dtos/request/meeting-broadcast-request.dto';
+import { StartMeetingBroadcastCommand } from '../../application/commands/start-meeting-broadcast/start-meeting-broadcast.command';
+import { EndMeetingBroadcastCommand } from '../../application/commands/end-meeting-broadcast/end-meeting-broadcast.command';
 
 @Controller('api/meetings')
 export class MeetingController {
@@ -29,15 +31,16 @@ export class MeetingController {
     private readonly queryBus: QueryBus,
   ) {}
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id/token')
   async getMeetingToken(
-    @Headers() header: any,
+    @Request() req,
     @Param('id') meetingId: string,
   ): Promise<TokenMeetingResponse> {
-    const token = header['authorization'];
+    const id = req.user.id;
     const tokenMeetingRequest: TokenMeetingRequest = {
       meetingId: meetingId,
-      userId: token.substring(7, token.length),
+      userId: id,
     };
     return this.commandBus.execute<
       GenerateMeetingTokenCommand,
@@ -52,16 +55,16 @@ export class MeetingController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   async createMeeting(
-    @Headers() header: any,
+    @Request() req: any,
     @Body() request: any,
   ): Promise<CreateMeetingResponse> {
-    console.log(header['authorization']);
-    const token = header['authorization'];
+    const user = req.user;
+    console.log(user);
     const createMeetingRequest: CreateMeetingRequest = {
-      name: request.name,
-      meetingCreatorId: token.substring(7, token.length),
+      meetingCreatorId: request.meetingCreatorId,
     };
     return this.commandBus.execute<CreateMeetingCommand, CreateMeetingResponse>(
       new CreateMeetingCommand(createMeetingRequest),
@@ -74,12 +77,31 @@ export class MeetingController {
     @Param('id') meetingId: string,
   ): Promise<void> {
     const token = header['authorization'];
-    // console.log(header);
+
     return this.commandBus.execute<DeleteMeetingCommand, void>(
       new DeleteMeetingCommand({
         meetingId: meetingId,
         userToken: token.substring(7, token.length),
       }),
+    );
+  }
+
+  @Post(':id/broadcasting/start')
+  startBroadcastingSession(
+    @Param('id') meetingId: string,
+    @Body() request: MeetingBroadcastRequestDto,
+  ): Promise<any> {
+    return this.commandBus.execute<StartMeetingBroadcastCommand, any>(
+      new StartMeetingBroadcastCommand(request),
+    );
+  }
+  @Post(':id/broadcasting/end')
+  endBroadcastingSession(
+    @Param('id') meetingId: string,
+    @Body() request: MeetingBroadcastRequestDto,
+  ): Promise<any> {
+    return this.commandBus.execute<EndMeetingBroadcastCommand, any>(
+      new EndMeetingBroadcastCommand(request),
     );
   }
 
@@ -103,25 +125,25 @@ export class MeetingController {
   //   >(new AddMeetingMemberCommand(addParticipantRequest));
   // }
 
-  @Put(':id/participants/:idParticipant')
-  async updateParticipant(
-    @Headers() header: any,
-    @Param('id') meetingId: string,
-    @Param('idParticipant') participantId: string,
-    @Body() request: any,
-  ): Promise<AddMeetingParticipantResponse> {
-    const token = header['authorization'];
-    const updateParticipantRequest: UpdateMeetingParticipantRequest = {
-      meetingId: meetingId,
-      nickname: request.nickname,
-      participantId: participantId,
-      token: token.substring(7, token.length),
-    };
-
-    return this.commandBus.execute<UpdateMeetingMemberCommand, any>(
-      new UpdateMeetingMemberCommand(updateParticipantRequest),
-    );
-  }
+  // @Put(':id/participants/:idParticipant')
+  // async updateParticipant(
+  //   @Headers() header: any,
+  //   @Param('id') meetingId: string,
+  //   @Param('idParticipant') participantId: string,
+  //   @Body() request: any,
+  // ): Promise<AddMeetingParticipantResponse> {
+  //   const token = header['authorization'];
+  //   const updateParticipantRequest: UpdateMeetingParticipantRequest = {
+  //     meetingId: meetingId,
+  //     nickname: request.nickname,
+  //     participantId: participantId,
+  //     token: token.substring(7, token.length),
+  //   };
+  //
+  //   return this.commandBus.execute<UpdateMeetingMemberCommand, any>(
+  //     new UpdateMeetingMemberCommand(updateParticipantRequest),
+  //   );
+  // }
 
   // @Delete(':id/participants/:idParticipant')
   // async deleteParticipant(
@@ -130,14 +152,14 @@ export class MeetingController {
   //   @Param('idParticipant') participantId: string,
   // ): Promise<void> {
   //   const token = header['authorization'];
-  //   const removeMeetingParticipantRequest: RemoveMeetingParticipantRequest = {
+  //   const removeMeetingMemberRequest: RemoveMeetingMemberRequest = {
   //     meetingId: meetingId,
   //     userToken: token.substring(7, token.length),
   //     participantId: participantId,
   //   };
-  //   // console.log(removeMeetingParticipantRequest);
-  //   await this.commandBus.execute<RemoveMeetingParticipantCommand, any>(
-  //     new RemoveMeetingParticipantCommand(removeMeetingParticipantRequest),
+  //   // console.log(removeMeetingMemberRequest);
+  //   await this.commandBus.execute<RemoveMeetingMemberCommand, any>(
+  //     new RemoveMeetingMemberCommand(removeMeetingMemberRequest),
   //   );
   // }
 }

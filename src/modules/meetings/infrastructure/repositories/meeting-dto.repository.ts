@@ -11,24 +11,13 @@ export class MeetingDtoRepository {
     private readonly meetingModel: Model<MeetingDocument>,
   ) {}
 
-  // async getAllMeetingParticipants(_id: string): Promise<MeetingMemberDto[]> {
-  //   const meeting = await this.meetingModel.findById(_id).lean();
-  //   const participants = meeting.activeMembers;
-  //   return participants.map((p) => {
-  //     if (p.userType === 'PARTICIPANT') {
-  //       return p;
-  //     }
-  //   });
-  // }
   async find(_id: string): Promise<MeetingDto> {
-    const meeting = await this.meetingModel
+    return await this.meetingModel
       .findOne({
         _id: _id,
-        active: true,
+        isActive: true,
       })
       .populate({ path: 'activeMembers' });
-    console.log(meeting);
-    return meeting;
   }
   async findAttr(entityFilterQuery: MeetingDocument): Promise<MeetingDto> {
     return this.meetingModel.findOne(entityFilterQuery);

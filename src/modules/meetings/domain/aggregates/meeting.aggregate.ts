@@ -1,76 +1,41 @@
 import { AggregateRoot } from '@nestjs/cqrs';
+import { MeetingBroadcastEvent } from '../../application/events/meeting-broadcast/meeting-broadcast.event';
 
 export class Meeting extends AggregateRoot {
   constructor(
     private readonly _id: string,
-    // private readonly name: string,
-    private readonly _meetingCreatorId: string,
-    // private participants: MeetingMemberDto[],
-    private active: boolean,
+    private _meetingCreatorId: string,
+    private _isBroadcasting: boolean,
+    private _isActive: boolean,
   ) {
     super();
   }
 
-  isActive(): boolean {
-    return this.active;
+  get isActive(): boolean {
+    return this._isActive;
   }
-
-  setActive(value: boolean) {
-    this.active = value;
+  set isActive(value: boolean) {
+    this._isActive = value;
   }
-
-  getActive(): boolean {
-    return this.active;
+  set meetingCreatorId(value: string) {
+    this._meetingCreatorId = value;
   }
-
-  getId(): string {
-    return this._id;
-  }
-  // getName(): string {
-  //   return this.name;
-  // }
-  // getParticipants(): MeetingMemberDto[] {
-  //   return [...this.participants];
-  // }
-  getMeetingCreatorId(): string {
+  get meetingCreatorId(): string {
     return this._meetingCreatorId;
   }
 
-  // addParticipant(participant: MeetingMemberDto) {
-  //   if (
-  //     participant.userType !== 'PARTICIPANT' &&
-  //     participant.userType !== 'OBSERVER'
-  //   ) {
-  //     throw new HttpException(
-  //       'THE USER IS ALREADY ON THE MEETING!',
-  //       HttpStatus.BAD_REQUEST,
-  //     );
-  //   }
-  //   const idx = this.participants.findIndex((value) => {
-  //     return value._id === participant._id;
-  //   });
-  //   if (idx !== -1) {
-  //     throw new HttpException(
-  //       'THE USER IS ALREADY ON THE MEETING!',
-  //       HttpStatus.CONFLICT,
-  //     );
-  //   }
-  //   this.participants.push(participant);
-  // }
-  //
-  // deleteParticipant(participantId: Types.ObjectId) {
-  //   this.participants = this.participants.filter((value) => {
-  //     return value._id !== participantId;
-  //   });
-  // }
-  //
-  // updateParticipant(participant: MeetingMemberDto, index: number) {
-  //   this.participants[index] = participant;
-  // }
-  //
-  // getParticipant(participantId: Types.ObjectId) {
-  //   return this.participants.find((value) => {
-  //     return value._id === participantId;
-  //   });
-  // }
+  get isBroadcasting(): boolean {
+    return this._isBroadcasting;
+  }
+  set isBroadcasting(value: boolean) {
+    this._isBroadcasting = value;
+  }
+
+  get id(): string {
+    return this._id;
+  }
+
+  public raiseBroadcastEvent(): void {
+    this.apply(new MeetingBroadcastEvent(this.isActive, this.id));
+  }
 }

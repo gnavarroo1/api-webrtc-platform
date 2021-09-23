@@ -1,16 +1,13 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { MongooseModule } from '@nestjs/mongoose';
-
-// import { MeetingSchema } from './infrastructure/factories/meeting.schema';
 import { MeetingEntityRepository } from './infrastructure/repositories/meeting-entity.repository';
 import { MeetingDtoRepository } from './infrastructure/repositories/meeting-dto.repository';
 import { MeetingDocumentFactory } from './infrastructure/factories/meeting-document.factory';
-import { MeetingCommandHandlers } from './application/commands';
 import { MeetingFactory } from './domain/meeting.factory';
-import { MeetingController } from './interfaces/rest/meeting.controller';
+import { MeetingCommandHandlers } from './application/commands';
 import { MeetingQueryHandlers } from './application/queries';
-import { JwtModule } from '@nestjs/jwt';
+import { MeetingController } from './interfaces/rest/meeting.controller';
 import { MeetingGateway } from './interfaces/socket/meeting.gateway';
 import {
   MeetingMemberDocument,
@@ -54,6 +51,7 @@ import { MeetingEventHandlers } from './application/events';
     MeetingMemberFactory,
     ...MeetingCommandHandlers,
     ...MeetingQueryHandlers,
+    ...MeetingEventHandlers,
     MeetingGateway,
   ],
 })

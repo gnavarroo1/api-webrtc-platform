@@ -1,13 +1,16 @@
 import { AggregateRoot } from '@nestjs/cqrs';
+import { MediaCapabilities } from '../../../../shared/types/common.types';
 
 export class MeetingMember extends AggregateRoot {
   constructor(
     private readonly _id: string,
     private readonly _userId: string,
+    private readonly _sessionUserId: string,
     private readonly _meetingId: string,
     private _socketId: string,
     private _nickname: string,
     private _memberType: string,
+    private _media: MediaCapabilities,
     private _isActive: boolean,
   ) {
     super();
@@ -19,6 +22,10 @@ export class MeetingMember extends AggregateRoot {
 
   get userId(): string {
     return this._userId;
+  }
+
+  get sessionUserId(): string {
+    return this._sessionUserId;
   }
 
   get meetingId(): string {
@@ -55,5 +62,36 @@ export class MeetingMember extends AggregateRoot {
 
   set isActive(value: boolean) {
     this._isActive = value;
+  }
+  get produceAudioAllowed(): boolean {
+    return this._media._produceAudioAllowed;
+  }
+
+  set produceAudioAllowed(value: boolean) {
+    this._media._produceAudioAllowed = value;
+  }
+
+  get produceVideoAllowed(): boolean {
+    return this._media._produceVideoAllowed;
+  }
+
+  set produceVideoAllowed(value: boolean) {
+    this._media._produceVideoAllowed = value;
+  }
+
+  get produceAudioEnabled(): boolean {
+    return this._media._produceAudioEnabled;
+  }
+
+  set produceAudioEnabled(value: boolean) {
+    this._media._produceAudioEnabled = value;
+  }
+
+  get produceVideoEnabled(): boolean {
+    return this._media._produceVideoEnabled;
+  }
+
+  set produceVideoEnabled(value: boolean) {
+    this._media._produceVideoEnabled = value;
   }
 }

@@ -3,6 +3,9 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as helmet from 'helmet';
 import { ValidationPipe } from '@nestjs/common';
+import * as mongoose from 'mongoose';
+
+// somewhere in your code
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -18,6 +21,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   app.enableCors();
   app.use(helmet());
+  mongoose.set('debug', true);
   await app.listen(3000);
 }
 bootstrap();

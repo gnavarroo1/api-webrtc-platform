@@ -11,11 +11,10 @@ export class MeetingDocumentFactory
 {
   create(entity: Meeting): MeetingDocument {
     return {
-      _id: new ObjectId(entity.getId()),
-      meetingCreatorId: new ObjectId(entity.getMeetingCreatorId()),
-      // activeMembers: entity.getParticipants(),
-      roomCode: '',
-      active: entity.getActive(),
+      _id: new ObjectId(entity.id),
+      meetingCreatorId: new ObjectId(entity.meetingCreatorId),
+      isBroadcasting: entity.isBroadcasting,
+      isActive: entity.isActive,
     };
   }
 
@@ -23,8 +22,8 @@ export class MeetingDocumentFactory
     return new Meeting(
       entitySchema._id.toHexString(),
       entitySchema.meetingCreatorId.toHexString(),
-      // entitySchema.activeMembers,
-      entitySchema.active,
+      entitySchema.isBroadcasting,
+      entitySchema.isActive,
     );
   }
 }

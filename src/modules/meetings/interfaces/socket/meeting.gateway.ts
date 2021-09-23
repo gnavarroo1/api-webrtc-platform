@@ -3,20 +3,20 @@ import {
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  WsException,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
-import { AddMeetingMemberRequest } from '../dtos/request/add-meeting-member-request.dto';
 import { CommandBus } from '@nestjs/cqrs';
-import { AddMeetingMemberCommand } from '../../application/commands/add-participant/add-meeting-member.command';
+import { AddMeetingMemberCommand } from '../../application/commands/add-meeting-member/add-meeting-member.command';
 import { AddMeetingParticipantResponse } from '../dtos/response/add-meeting-participant-response.dto';
-import { RemoveMeetingParticipantCommand } from '../../application/commands/remove-member/remove-meeting-participant.command';
+import { RemoveMeetingMemberCommand } from '../../application/commands/remove-meeting-member/remove-meeting-member.command';
 import { Result } from '../../../../shared/utils/functional-error-handler';
+import { MeetingMember } from '../../domain/aggregates/meeting-member.aggregate';
+import { UpdateMeetingMemberRequest } from '../dtos/request/update-meeting-member-request.dto';
+import { UpdateMeetingMemberCommand } from '../../application/commands/update-meeting-member/update-meeting-member.command';
 
 @WebSocketGateway({
   cors: {
@@ -25,93 +25,141 @@ import { Result } from '../../../../shared/utils/functional-error-handler';
   namespace: 'meeting-events',
 })
 export class MeetingGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+  implements OnGatewayConnection, OnGatewayDisconnect
 {
   constructor(private readonly commandBus: CommandBus) {}
 
   @WebSocketServer() wss: Server;
   private logger: Logger = new Logger('MeetingGateway');
-  // @SubscribeMessage('message')
-  // handleMessage(client: any, payload: any): string {
-  //   return 'Hello world!';
-  // }
 
-  afterInit(): any {}
-
-  handleConnection(client: Socket): any {
+  handleConnection(@ConnectedSocket() client: Socket): any {
     this.logger.log('Client connected: ' + client.id);
   }
 
-  handleDisconnect(client: Socket): any {
+  handleDisconnect(@ConnectedSocket() client: Socket): any {
     this.logger.log('Client disconnected: ' + client.id);
   }
 
   @SubscribeMessage('disconnecting')
-  async handleDisconnecting(client: Socket, payload: any): Promise<void> {
-    // console.log('PAYLOAD => ', payload);
-    // console.log(this.wss.sockets.adapter.rooms);
-    const auth_token = client.handshake.headers.authorization;
-    // console.log('AUTH_TOKEN', auth_token);
-    this.logger.log('Client disconnected: ' + client.id);
+  async handleDisconnecting(@ConnectedSocket() client: Socket): Promise<void> {
+    this.logger.log('Client disconnecting: ' + client.id);
     const meetingMemberOrError = await this.commandBus.execute<
-      RemoveMeetingParticipantCommand,
+      RemoveMeetingMemberCommand,
       Result<any>
     >(
-      new RemoveMeetingParticipantCommand({
+      new RemoveMeetingMemberCommand({
         socketId: client.id,
-        userToken: auth_token,
       }),
     );
 
     if (!meetingMemberOrError.isFailure) {
-      const meetingMember = meetingMemberOrError.getValue();
-      this.wss
-        .to(meetingMember.meetingId)
-        .emit('on-disconnect', { sender: client.id });
+      const { meetingId, id } =
+        meetingMemberOrError.getValue() as MeetingMember;
+      this.wss.to(meetingId).emit('on-disconnect', { sender: id });
     }
   }
+
   @SubscribeMessage('on-disconnect')
-  onDisconnect(client: Socket, payload): any {
+  onDisconnect(@ConnectedSocket() client: Socket, @MessageBody() payload): any {
     console.log(`TESTING ON DISCONNECT EVENT FOR CLIENT ${client.id}`);
     this.wss.to(payload.room).emit('user-disconnected', client.id);
   }
 
   @SubscribeMessage('join-meeting')
-  async handleJoinMeeting(
+  public async handleJoinMeeting(
     @ConnectedSocket() client: Socket,
-    @MessageBody() addMeetingMemberRequest: AddMeetingMemberRequest,
-  ): Promise<void> {
-    //let auth_token = socket.handshake.headers.authorization;
+    @MessageBody() addMeetingMemberRequest: any,
+  ): Promise<any> {
+    this.logger.warn(client.handshake.headers.authorization, 'join-meeting');
     try {
-      await this.commandBus
-        .execute<AddMeetingMemberCommand, AddMeetingParticipantResponse>(
-          new AddMeetingMemberCommand(addMeetingMemberRequest, client.id),
-        )
-        .then((addMeetingParticipantResponse) => {
-          // console.log('recibo response', addMeetingParticipantResponse);
-          client.join(addMeetingMemberRequest.meetingId);
-          //todo emit event
-          this.wss
-            .to(addMeetingMemberRequest.meetingId)
-            .emit('join-meeting', addMeetingParticipantResponse);
-        })
-        .catch((e) => {
-          console.error('handleJoinMeeting', e);
-          throw new WsException(e.message);
-        });
+      const addMeetingParticipantResponseOrError =
+        await this.commandBus.execute<
+          AddMeetingMemberCommand,
+          Result<AddMeetingParticipantResponse>
+        >(new AddMeetingMemberCommand(addMeetingMemberRequest, client.id));
+      if (!addMeetingParticipantResponseOrError.isFailure) {
+        const addMeetingParticipantResponse =
+          addMeetingParticipantResponseOrError.getValue();
+        client.join(addMeetingMemberRequest.meetingId);
+        console.log(
+          'retornando valores y emitiendo a otros usuarios conectados',
+        );
+        this.wss
+          .to(addMeetingMemberRequest.meetingId)
+          .emit('join-meeting', addMeetingParticipantResponse);
+
+        return {
+          success: true,
+          payload: addMeetingParticipantResponse,
+        };
+      } else {
+        return {
+          success: false,
+          payload: addMeetingParticipantResponseOrError.error,
+        };
+      }
     } catch (e) {
       console.error(e);
-      throw new WsException(e.message);
+      return {
+        success: false,
+        message: e.message,
+      };
     }
   }
 
   @SubscribeMessage('end-meeting-session')
-  handleEndMeetingSession(client: Socket, payload: any): any {
+  handleEndMeetingSession(
+    @ConnectedSocket() client: Socket,
+    payload: any,
+  ): any {
     this.wss.to(payload.roomId).emit('end-meeting-session', {
       msg: 'end-meeting',
     });
   }
 
-  @SubscribeMessage('update-participant')
-  handleUpdateMeetingParticipant(client: Socket, payload: any): any {}
+  @SubscribeMessage('update-meeting-member')
+  async handleUpdateMeetingParticipant(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: UpdateMeetingMemberRequest,
+  ): Promise<any> {
+    try {
+      const updateMeetingMemberOrError = await this.commandBus.execute<
+        UpdateMeetingMemberCommand,
+        Result<any>
+      >(new UpdateMeetingMemberCommand(payload, client.id));
+      if (!updateMeetingMemberOrError.isFailure) {
+        const updateMeetingMember = updateMeetingMemberOrError.getValue();
+        client
+          .to(payload.meetingId)
+          .emit('update-meeting-member', updateMeetingMember);
+      } else {
+        return {
+          success: false,
+          payload: updateMeetingMemberOrError.error,
+        };
+      }
+    } catch (e) {
+      return {
+        success: false,
+        message: e.message,
+      };
+    }
+    return;
+  }
+
+  @SubscribeMessage('start-broadcasting-session')
+  handleStartBroadcastingSession(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: any,
+  ): any {
+    client.to(payload.meetingId).emit('start-broadcasting-session', payload);
+  }
+
+  @SubscribeMessage('end-broadcasting-session')
+  handleEndBroadcastingSession(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload,
+  ) {
+    client.to(payload.meetingId).emit('end-broadcasting-session', payload);
+  }
 }

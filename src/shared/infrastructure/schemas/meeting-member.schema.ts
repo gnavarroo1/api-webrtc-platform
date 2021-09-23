@@ -1,19 +1,21 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { IdentifiableEntitySchema } from '../../generics/identifiable-entity.schema';
-import * as mongoose from 'mongoose';
 import { SchemaTypes, Types } from 'mongoose';
-import { UserSchema } from './user.schema';
+import { ObjectID } from 'mongodb';
 
 @Schema({ versionKey: false, collection: 'meetingmembers', timestamps: true })
 export class MeetingMemberDocument extends IdentifiableEntitySchema {
   @Prop({
-    type: SchemaTypes.ObjectId,
-    ref: UserSchema.name,
-    required: true,
+    type: ObjectID,
   })
   readonly userId: Types.ObjectId;
   @Prop({
-    type: mongoose.SchemaTypes.ObjectId,
+    type: ObjectID,
+    required: true,
+  })
+  readonly sessionUserId: Types.ObjectId;
+  @Prop({
+    type: SchemaTypes.ObjectId,
     ref: 'meetings',
     required: true,
   })
@@ -30,6 +32,18 @@ export class MeetingMemberDocument extends IdentifiableEntitySchema {
   readonly socketId: string;
   @Prop({ type: Boolean, default: true })
   readonly isActive: boolean;
+
+  @Prop({ type: Boolean, default: true })
+  readonly produceAudioAllowed: boolean;
+
+  @Prop({ type: Boolean, default: true })
+  readonly produceVideoAllowed: boolean;
+
+  @Prop({ type: Boolean, default: true })
+  readonly produceAudioEnabled: boolean;
+
+  @Prop({ type: Boolean, default: true })
+  readonly produceVideoEnabled: boolean;
 }
 
 const MeetingMemberSchema = SchemaFactory.createForClass(MeetingMemberDocument);

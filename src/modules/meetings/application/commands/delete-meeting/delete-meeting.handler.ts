@@ -2,6 +2,9 @@ import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { DeleteMeetingCommand } from './delete-meeting.command';
 import { JwtService } from '@nestjs/jwt';
 import { MeetingEntityRepository } from '../../../infrastructure/repositories/meeting-entity.repository';
+import { HttpException, HttpStatus } from '@nestjs/common';
+import { ErrorMessage } from '../../../domain/error.enum';
+import { Meeting } from '../../../domain/aggregates/meeting.aggregate';
 
 @CommandHandler(DeleteMeetingCommand)
 export class DeleteMeetingHandler
@@ -14,30 +17,30 @@ export class DeleteMeetingHandler
   ) {}
 
   async execute({ deleteMeetingRequest }: DeleteMeetingCommand): Promise<void> {
-    // const decoded = this.jwtService.decode(deleteMeetingRequest.userToken);
-    // const meeting = await this.meetingEntityRepository.findOneAttr({
-    //   _id: deleteMeetingRequest.meetingId,
-    // });
-    // if (!meeting) {
-    //   throw new HttpException(
-    //     ErrorMessage.MEETINGS_IS_NOT_FOUND,
-    //     HttpStatus.NOT_FOUND,
-    //   );
-    // }
-    // // console.log(decoded)
-    // if (decoded.sub != meeting.getMeetingCreatorId()) {
+    const decoded = this.jwtService.decode(deleteMeetingRequest.userToken);
+    const meetingOrFailure = await this.meetingEntityRepository.findOneAttr({
+      _id: deleteMeetingRequest.meetingId,
+    });
+    if (!meetingOrFailure.isFailure) {
+      throw new HttpException(
+        ErrorMessage.MEETINGS_IS_NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const meeting: Meeting = meetingOrFailure.getValue();
+    // console.log(decoded)
+    // if (decoded.sub != meeting.meetingCreatorId) {
     //   throw new HttpException(
     //     ErrorMessage.CREDENTIALS_ERROR,
     //     HttpStatus.UNAUTHORIZED,
     //   );
     // }
-    // meeting.setActive(false);
-    // console.log(meeting);
-    // const t = await this.meetingEntityRepository.findOneAndReplaceById(
-    //   deleteMeetingRequest.meetingId,
-    //   meeting,
-    // );
-    // console.log(t);
-    // meeting.commit();
+    meeting.isActive = false;
+    const t = await this.meetingEntityRepository.findOneAndReplaceById(
+      deleteMeetingRequest.meetingId,
+      meeting,
+    );
+    meeting.commit();
+    return;
   }
 }
