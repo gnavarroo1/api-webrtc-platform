@@ -24,17 +24,25 @@ export class MeetingDocument extends IdentifiableEntitySchema {
 }
 
 const MeetingSchema = SchemaFactory.createForClass(MeetingDocument);
-MeetingSchema.virtual('activeProducerMembers', {
+MeetingSchema.virtual('activeMembers', {
   ref: MeetingMemberDocument.name,
   localField: '_id',
   foreignField: 'meetingId',
   justOne: false,
   match: {
-    memberType: 'PRODUCER',
-    isActive: true,
+    $or: [
+      {
+        memberType: 'PRODUCER',
+        isActive: true,
+      },
+      {
+        memberType: 'BOTH',
+        isActive: true,
+      },
+    ],
   },
 });
-MeetingSchema.virtual('activeConsumerMembers', {
+MeetingSchema.virtual('activeOnlyConsumerMembers', {
   ref: MeetingMemberDocument.name,
   localField: '_id',
   foreignField: 'meetingId',
@@ -44,15 +52,26 @@ MeetingSchema.virtual('activeConsumerMembers', {
     isActive: true,
   },
 });
-//
-// MeetingSchema.virtual('Members', {
-//   ref: MeetingMemberSchema.name,
-//   localField: 'activeMembers',
-//   foreignField: '_id',
-//   justOne: false,
-//   match: {
-//     isActive: true,
-//   },
-// });
+
+MeetingSchema.virtual('activeProducerMembersScreenSharing', {
+  ref: MeetingMemberDocument.name,
+  localField: '_id',
+  foreignField: 'meetingId',
+  justOne: false,
+  match: {
+    $or: [
+      {
+        memberType: 'PRODUCER',
+        isScreenSharing: true,
+        isActive: true,
+      },
+      {
+        memberType: 'BOTH',
+        isScreenSharing: true,
+        isActive: true,
+      },
+    ],
+  },
+});
 
 export { MeetingSchema };

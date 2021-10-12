@@ -28,6 +28,11 @@ export class MeetingMemberDocument extends IdentifiableEntitySchema {
     enum: ['BOTH', 'PRODUCER', 'CONSUMER'],
   })
   readonly memberType: string;
+  @Prop({
+    type: String,
+    enum: ['MESH', 'SFU'],
+  })
+  readonly connectionType: string;
   @Prop({ type: String, required: true })
   readonly socketId: string;
   @Prop({ type: Boolean, default: true })
@@ -44,6 +49,12 @@ export class MeetingMemberDocument extends IdentifiableEntitySchema {
 
   @Prop({ type: Boolean, default: true })
   readonly produceVideoEnabled: boolean;
+
+  @Prop({
+    type: Boolean,
+    default: false,
+  })
+  readonly isScreenSharing: boolean;
 }
 
 const MeetingMemberSchema = SchemaFactory.createForClass(MeetingMemberDocument);

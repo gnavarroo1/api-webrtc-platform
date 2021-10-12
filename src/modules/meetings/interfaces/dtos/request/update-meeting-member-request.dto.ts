@@ -36,6 +36,10 @@ export class UpdateMeetingMemberRequest {
   readonly produceVideoEnabled?: boolean;
 
   @IsOptional()
+  @IsBoolean()
+  readonly isScreenSharing?: boolean;
+
+  @IsOptional()
   @IsString()
   readonly nickname?: string;
 }

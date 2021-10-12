@@ -4,10 +4,12 @@ import {
   Delete,
   Get,
   Headers,
+  HttpException,
+  HttpStatus,
   Param,
   Post,
+  Put,
   Request,
-  UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { MeetingDto } from '../dtos/meeting.dto';
@@ -19,10 +21,13 @@ import { GenerateMeetingTokenCommand } from '../../application/commands/generate
 import { CreateMeetingResponse } from '../dtos/response/create-meeting-response.dto';
 import { TokenMeetingResponse } from '../dtos/response/token-meeting-response.dto';
 import { DeleteMeetingCommand } from '../../application/commands/delete-meeting/delete-meeting.command';
-import { JwtAuthGuard } from '../../../../auth/guards/jwt-auth.guard';
 import { MeetingBroadcastRequestDto } from '../dtos/request/meeting-broadcast-request.dto';
 import { StartMeetingBroadcastCommand } from '../../application/commands/start-meeting-broadcast/start-meeting-broadcast.command';
 import { EndMeetingBroadcastCommand } from '../../application/commands/end-meeting-broadcast/end-meeting-broadcast.command';
+import { ListMeetingMembersQuery } from '../../application/queries/list-meeting-members/list-meeting-members.query';
+import { UpdateMeetingMemberRequest } from '../dtos/request/update-meeting-member-request.dto';
+import { UpdateMeetingMemberCommand } from '../../application/commands/update-meeting-member/update-meeting-member.command';
+import { ErrorMessage } from '../../domain/error.enum';
 
 @Controller('api/meetings')
 export class MeetingController {
@@ -31,7 +36,6 @@ export class MeetingController {
     private readonly queryBus: QueryBus,
   ) {}
 
-  @UseGuards(JwtAuthGuard)
   @Get(':id/token')
   async getMeetingToken(
     @Request() req,
@@ -50,12 +54,11 @@ export class MeetingController {
 
   @Get(':id')
   async getMeeting(@Param('id') meetingId: string): Promise<MeetingDto> {
-    return await this.queryBus.execute<GetMeetingQuery, MeetingDto>(
+    return this.queryBus.execute<GetMeetingQuery, MeetingDto>(
       new GetMeetingQuery(meetingId),
     );
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post()
   async createMeeting(
     @Request() req: any,
@@ -105,6 +108,13 @@ export class MeetingController {
     );
   }
 
+  @Get(':id/members')
+  async getMeetingMembers(@Param('id') meetingId: string): Promise<any> {
+    return this.queryBus.execute<ListMeetingMembersQuery, any>(
+      new ListMeetingMembersQuery(meetingId),
+    );
+  }
+
   // @Post(':id/participants')
   // async addParticipant(
   //   @Headers() header: any,
@@ -125,25 +135,35 @@ export class MeetingController {
   //   >(new AddMeetingMemberCommand(addParticipantRequest));
   // }
 
-  // @Put(':id/participants/:idParticipant')
-  // async updateParticipant(
-  //   @Headers() header: any,
-  //   @Param('id') meetingId: string,
-  //   @Param('idParticipant') participantId: string,
-  //   @Body() request: any,
-  // ): Promise<AddMeetingParticipantResponse> {
-  //   const token = header['authorization'];
-  //   const updateParticipantRequest: UpdateMeetingParticipantRequest = {
-  //     meetingId: meetingId,
-  //     nickname: request.nickname,
-  //     participantId: participantId,
-  //     token: token.substring(7, token.length),
-  //   };
-  //
-  //   return this.commandBus.execute<UpdateMeetingMemberCommand, any>(
-  //     new UpdateMeetingMemberCommand(updateParticipantRequest),
-  //   );
-  // }
+  @Put(':id/members/:idMember')
+  async updateMeetingMember(
+    @Param('id') meetingId: string,
+    @Param('idMember') meetingMemberId: string,
+    @Body() updateParticipantRequest: UpdateMeetingMemberRequest,
+  ): Promise<void> {
+    if (meetingId !== updateParticipantRequest.meetingId) {
+      throw new HttpException(
+        ErrorMessage.CREDENTIALS_ERROR,
+        HttpStatus.CONFLICT,
+      );
+    }
+    if (meetingMemberId !== updateParticipantRequest.meetingMemberId) {
+      throw new HttpException(
+        ErrorMessage.CREDENTIALS_ERROR,
+        HttpStatus.CONFLICT,
+      );
+    }
+
+    const resultOrError = await this.commandBus.execute<
+      UpdateMeetingMemberCommand,
+      any
+    >(new UpdateMeetingMemberCommand(updateParticipantRequest));
+    if (!resultOrError.isFailure) {
+      return;
+    } else {
+      throw new HttpException(resultOrError.error, HttpStatus.NOT_FOUND);
+    }
+  }
 
   // @Delete(':id/participants/:idParticipant')
   // async deleteParticipant(

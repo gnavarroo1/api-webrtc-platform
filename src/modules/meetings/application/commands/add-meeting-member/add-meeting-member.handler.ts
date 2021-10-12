@@ -8,6 +8,7 @@ import { MeetingMemberEntityRepository } from '../../../infrastructure/repositor
 import { MeetingMember } from '../../../domain/aggregates/meeting-member.aggregate';
 import { Result } from '../../../../../shared/utils/functional-error-handler';
 import { ObjectId } from 'mongodb';
+import { AddMeetingParticipantResponse } from '../../../interfaces/dtos/response/add-meeting-participant-response.dto';
 
 @CommandHandler(AddMeetingMemberCommand)
 export class AddMeetingMemberHandler
@@ -24,26 +25,21 @@ export class AddMeetingMemberHandler
   async execute({
     addMeetingMemberRequest,
     socketId,
-  }: AddMeetingMemberCommand): Promise<Result<MeetingMember>> {
-    console.log(
-      'AddMeetingMemberHandler',
-      'Validando que la meeting existe y esta activa',
-    );
-    //region TODO ENCAPSULATE VALIDATION
+  }: AddMeetingMemberCommand): Promise<Result<AddMeetingParticipantResponse>> {
+    //Validar que la session o meeting exista y se encuentre en estado activo.
     const meetingOrError = await this.meetingEntityRepository.findOneAttr({
       _id: addMeetingMemberRequest.meetingId,
       isActive: true,
     });
-    // console.warn(meetingOrError);
     if (meetingOrError.isFailure) {
-      return Result.fail<MeetingMember>(ErrorMessage.MEETINGS_IS_NOT_FOUND);
+      return Result.fail<AddMeetingParticipantResponse>(
+        ErrorMessage.MEETINGS_IS_NOT_FOUND,
+      );
     }
-    //endregion
+    const meeting = meetingOrError.getValue();
 
-    console.log(
-      'AddMeetingMemberHandler',
-      'Buscando si es que existe un miembro ya registrado con el id de usuario y meeting recibido',
-    );
+    // Validar si es que la información enviada, userId o sessionUserId, se encuentran registradas en algun meeting member
+    // Se considera que tanto el userId como el sessionUserId no pueden estar asignados a más de un meeting member en la misma sesión
     const meetingMemberOrError =
       await this.meetingMemberEntityRepository.findOneAttr({
         $and: [
@@ -62,19 +58,12 @@ export class AddMeetingMemberHandler
           },
         ],
       });
-    // console.log('AddMeetingMemberHandler', meetingMemberOrError);
     let meetingMember: MeetingMember;
+
     if (meetingMemberOrError.isSuccess) {
-      console.log(
-        'AddMeetingMemberHandler',
-        'Si es que el miembro existe, entonces se valida ',
-      );
       meetingMember = meetingMemberOrError.getValue();
-      console.warn(meetingMember, 'MEETING MEMBER');
-      if (!meetingMember.isActive) {
-        console.warn(
-          'si es que su atributo isActive es falso este se actualiza',
-        );
+      //Validar si es que el miembro se encuentra activo.
+      if (meetingMember.isActive === false) {
         meetingMember.isActive = true;
         meetingMember.socketId = socketId;
         await this.meetingMemberEntityRepository.findOneAndReplaceByAttr(
@@ -84,17 +73,11 @@ export class AddMeetingMemberHandler
           meetingMember,
         );
       } else {
-        console.warn(
-          'si es que su atributo isActive es verdadero se lanza un mensaje de error',
+        return Result.fail<AddMeetingParticipantResponse>(
+          ErrorMessage.USER_CONNECTED,
         );
-        //TODO maybe throw Conflict error?
-        return Result.fail<MeetingMember>(ErrorMessage.USER_CONNECTED);
       }
     } else {
-      console.log(
-        'AddMeetingMemberHandler',
-        'Si es que el miembro no existe, entonces se le agrega al documento',
-      );
       meetingMember = this.eventPublisher.mergeObjectContext(
         await this.meetingMemberFactory.create(
           addMeetingMemberRequest.userId,
@@ -103,10 +86,32 @@ export class AddMeetingMemberHandler
           socketId,
           addMeetingMemberRequest.nickname,
           addMeetingMemberRequest.memberType,
+          {
+            _connectionType: addMeetingMemberRequest.connectionType,
+            _isScreenSharing: false,
+            _produceVideoAllowed: true,
+            _produceAudioAllowed: true,
+            _produceVideoEnabled: false,
+            _produceAudioEnabled: false,
+          },
         ),
       );
     }
     meetingMember.commit();
-    return Result.ok<MeetingMember>(meetingMember);
+    return Result.ok<AddMeetingParticipantResponse>({
+      isMeetingCreator:
+        meeting.meetingCreatorId === meetingMember.sessionUserId ||
+        meeting.meetingCreatorId === meetingMember.userId,
+      memberType: meetingMember.memberType,
+      nickname: meetingMember.nickname,
+      produceVideoAllowed: meetingMember.produceVideoAllowed,
+      produceVideoEnabled: meetingMember.produceVideoEnabled,
+      produceAudioAllowed: meetingMember.produceAudioAllowed,
+      produceAudioEnabled: meetingMember.produceAudioEnabled,
+      connectionType: meetingMember.connectionType,
+      userId: meetingMember.userId,
+      _id: meetingMember.id,
+      sessionUserId: meetingMember.sessionUserId,
+    });
   }
 }

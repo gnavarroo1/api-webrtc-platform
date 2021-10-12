@@ -16,7 +16,6 @@ export class CreateMeetingHandler
     createMeetingRequest,
   }: CreateMeetingCommand): Promise<CreateMeetingResponse> {
     const { meetingCreatorId } = createMeetingRequest;
-    //Validate that the token exists
     const meeting = this.eventPublisher.mergeObjectContext(
       await this.meetingFactory.create(meetingCreatorId),
     );

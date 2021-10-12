@@ -3,6 +3,7 @@ import { EntitySchemaFactory } from '../../../../shared/generics/entity-schema.f
 import { MeetingMemberDocument } from '../../../../shared/infrastructure/schemas/meeting-member.schema';
 import { MeetingMember } from '../../domain/aggregates/meeting-member.aggregate';
 import { ObjectId } from 'mongodb';
+import { MediaCapabilities } from '../../../../shared/types/common.types';
 
 @Injectable()
 export class MeetingMemberDocumentFactory
@@ -18,6 +19,8 @@ export class MeetingMemberDocumentFactory
       socketId: entity.socketId,
       memberType: entity.memberType,
       isActive: entity.isActive,
+      isScreenSharing: entity.isScreenSharing,
+      connectionType: entity.connectionType,
       produceAudioAllowed: entity.produceAudioAllowed,
       produceAudioEnabled: entity.produceAudioEnabled,
       produceVideoAllowed: entity.produceVideoAllowed,
@@ -26,7 +29,9 @@ export class MeetingMemberDocumentFactory
   }
 
   createFromSchema(entitySchema: MeetingMemberDocument): MeetingMember {
-    const mediaCapabilities = {
+    const mediaCapabilities: MediaCapabilities = {
+      _isScreenSharing: entitySchema.isScreenSharing,
+      _connectionType: entitySchema.connectionType,
       _produceAudioEnabled: entitySchema.produceAudioEnabled,
       _produceAudioAllowed: entitySchema.produceAudioAllowed,
       _produceVideoEnabled: entitySchema.produceVideoEnabled,

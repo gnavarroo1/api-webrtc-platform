@@ -28,14 +28,8 @@ export class DeleteMeetingHandler
       );
     }
     const meeting: Meeting = meetingOrFailure.getValue();
-    // console.log(decoded)
-    // if (decoded.sub != meeting.meetingCreatorId) {
-    //   throw new HttpException(
-    //     ErrorMessage.CREDENTIALS_ERROR,
-    //     HttpStatus.UNAUTHORIZED,
-    //   );
-    // }
     meeting.isActive = false;
+
     const t = await this.meetingEntityRepository.findOneAndReplaceById(
       deleteMeetingRequest.meetingId,
       meeting,

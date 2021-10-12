@@ -34,6 +34,7 @@ export class RemoveMeetingMemberHandler
       }
       const meetingMember = meetingMemberOrError.getValue();
       meetingMember.isActive = false;
+      meetingMember.isScreenSharing = false;
       await this.meetingMemberEntityRepository.findOneAndReplaceById(
         meetingMember.id,
         meetingMember,

@@ -18,12 +18,7 @@ export class MeetingMemberFactory implements EntityFactory<MeetingMember> {
     socketId: string,
     nickname: string,
     memberType = 'BOTH',
-    mediaCapabilities: MediaCapabilities = {
-      _produceVideoAllowed: true,
-      _produceVideoEnabled: true,
-      _produceAudioAllowed: true,
-      _produceAudioEnabled: true,
-    },
+    mediaCapabilities: MediaCapabilities,
     isActive = true,
   ): Promise<MeetingMember> {
     const meetingMember = new MeetingMember(

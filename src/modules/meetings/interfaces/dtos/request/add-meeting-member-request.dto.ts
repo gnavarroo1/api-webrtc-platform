@@ -21,4 +21,9 @@ export class AddMeetingMemberRequest {
   @IsNotEmpty()
   @IsIn(['BOTH', 'CONSUMER', 'PRODUCER'])
   readonly memberType: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsIn(['MESH', 'SFU'])
+  readonly connectionType: string;
 }

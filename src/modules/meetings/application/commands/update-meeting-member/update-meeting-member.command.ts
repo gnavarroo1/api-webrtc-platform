@@ -3,6 +3,5 @@ import { UpdateMeetingMemberRequest } from '../../../interfaces/dtos/request/upd
 export class UpdateMeetingMemberCommand {
   constructor(
     public readonly updateMeetingMemberRequest: UpdateMeetingMemberRequest,
-    public readonly socketId: string,
   ) {}
 }
