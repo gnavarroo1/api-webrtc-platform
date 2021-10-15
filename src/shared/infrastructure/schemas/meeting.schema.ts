@@ -42,7 +42,7 @@ MeetingSchema.virtual('activeMembers', {
     ],
   },
 });
-MeetingSchema.virtual('activeOnlyConsumerMembers', {
+MeetingSchema.virtual('activeViewers', {
   ref: MeetingMemberDocument.name,
   localField: '_id',
   foreignField: 'meetingId',
@@ -50,27 +50,6 @@ MeetingSchema.virtual('activeOnlyConsumerMembers', {
   match: {
     memberType: 'CONSUMER',
     isActive: true,
-  },
-});
-
-MeetingSchema.virtual('activeProducerMembersScreenSharing', {
-  ref: MeetingMemberDocument.name,
-  localField: '_id',
-  foreignField: 'meetingId',
-  justOne: false,
-  match: {
-    $or: [
-      {
-        memberType: 'PRODUCER',
-        isScreenSharing: true,
-        isActive: true,
-      },
-      {
-        memberType: 'BOTH',
-        isScreenSharing: true,
-        isActive: true,
-      },
-    ],
   },
 });
 

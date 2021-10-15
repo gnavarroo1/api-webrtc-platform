@@ -14,15 +14,16 @@ export class ListMeetingMembersHandler
   async execute(
     query: ListMeetingMembersQuery,
   ): Promise<ListMeetingMembersResponse> {
-    const meeting = await this.meetingDtoRepository.find(query.meetingId);
+    const meeting = await this.meetingDtoRepository.findMembers(
+      query.meetingId,
+    );
     if (!meeting) {
       throw new HttpException(
         ErrorMessage.MEETINGS_IS_NOT_FOUND,
         HttpStatus.NOT_FOUND,
       );
     }
-    const { activeMembers } = meeting;
-    console.log(activeMembers);
-    return { activeMembers };
+    const { activeMembers, activeViewers } = meeting;
+    return { activeMembers, activeViewers };
   }
 }

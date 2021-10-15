@@ -115,26 +115,6 @@ export class MeetingController {
     );
   }
 
-  // @Post(':id/participants')
-  // async addParticipant(
-  //   @Headers() header: any,
-  //   @Param('id') meetingId: string,
-  //   @Body() request: any,
-  // ): Promise<AddMeetingParticipantResponse> {
-  //   const token = header['authorization'];
-  //   const addParticipantRequest: AddMeetingParticipantRequest = {
-  //     meetingId: meetingId,
-  //     id: request.id,
-  //     userType: request.userType,
-  //     nickname: request.nickname,
-  //     usertoken: token.substring(7, token.length),
-  //   };
-  //   return this.commandBus.execute<
-  //     AddMeetingMemberCommand,
-  //     AddMeetingParticipantResponse
-  //   >(new AddMeetingMemberCommand(addParticipantRequest));
-  // }
-
   @Put(':id/members/:idMember')
   async updateMeetingMember(
     @Param('id') meetingId: string,
@@ -164,22 +144,4 @@ export class MeetingController {
       throw new HttpException(resultOrError.error, HttpStatus.NOT_FOUND);
     }
   }
-
-  // @Delete(':id/participants/:idParticipant')
-  // async deleteParticipant(
-  //   @Headers() header: any,
-  //   @Param('id') meetingId: string,
-  //   @Param('idParticipant') participantId: string,
-  // ): Promise<void> {
-  //   const token = header['authorization'];
-  //   const removeMeetingMemberRequest: RemoveMeetingMemberRequest = {
-  //     meetingId: meetingId,
-  //     userToken: token.substring(7, token.length),
-  //     participantId: participantId,
-  //   };
-  //   // console.log(removeMeetingMemberRequest);
-  //   await this.commandBus.execute<RemoveMeetingMemberCommand, any>(
-  //     new RemoveMeetingMemberCommand(removeMeetingMemberRequest),
-  //   );
-  // }
 }

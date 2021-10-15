@@ -37,24 +37,25 @@ export class MeetingMemberDocument extends IdentifiableEntitySchema {
   readonly socketId: string;
   @Prop({ type: Boolean, default: true })
   readonly isActive: boolean;
-
   @Prop({ type: Boolean, default: true })
   readonly produceAudioAllowed: boolean;
-
   @Prop({ type: Boolean, default: true })
   readonly produceVideoAllowed: boolean;
-
   @Prop({ type: Boolean, default: true })
   readonly produceAudioEnabled: boolean;
-
   @Prop({ type: Boolean, default: true })
   readonly produceVideoEnabled: boolean;
-
   @Prop({
     type: Boolean,
     default: false,
   })
   readonly isScreenSharing: boolean;
+
+  @Prop({
+    type: Boolean,
+    default: false,
+  })
+  readonly canScreenShare: boolean;
 }
 
 const MeetingMemberSchema = SchemaFactory.createForClass(MeetingMemberDocument);

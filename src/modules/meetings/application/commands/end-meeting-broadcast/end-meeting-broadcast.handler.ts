@@ -48,14 +48,9 @@ export class EndMeetingBroadcastHandler
       meeting,
     );
 
-    // const meetingAggregate = this.eventPublisher.mergeObjectContext(meeting);
-    //
-    // meetingAggregate.raiseBroadcastEvent();
-    // meetingAggregate.commit();
-
     this.wss.wss
       .to(meeting.id)
-      .emit('end-broadcasting-session', meeting.isActive);
+      .emit('endBroadcastingSession', meeting.isBroadcasting);
 
     meeting.commit();
     return meeting;

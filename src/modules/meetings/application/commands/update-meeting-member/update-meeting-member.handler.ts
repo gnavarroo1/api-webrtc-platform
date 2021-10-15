@@ -49,6 +49,9 @@ export class UpdateMeetingMemberHandler
         case 'isScreenSharing':
           meetingMember.isScreenSharing = properties[propertiesKey];
           break;
+        case 'canScreenShare':
+          meetingMember.canScreenShare = properties[propertiesKey];
+          break;
         case 'produceAudioAllowed':
           meetingMember.produceAudioAllowed = properties[propertiesKey];
           break;

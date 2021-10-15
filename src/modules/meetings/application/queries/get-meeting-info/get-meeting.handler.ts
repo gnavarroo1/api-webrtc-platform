@@ -16,13 +16,11 @@ export class GetMeetingHandler implements IQueryHandler<GetMeetingQuery> {
         HttpStatus.NOT_FOUND,
       );
     }
-    console.log(meeting);
     return {
       _id: meeting._id,
       meetingCreatorId: meeting.meetingCreatorId,
       isActive: meeting.isActive,
       isBroadcasting: meeting.isBroadcasting,
-      activeMembers: meeting.activeMembers,
     };
   }
 }

@@ -4,6 +4,8 @@ export class AddMeetingParticipantResponse {
   readonly produceVideoAllowed: boolean;
   readonly produceAudioAllowed: boolean;
   readonly connectionType: string;
+  readonly canScreenShare: boolean;
+  readonly meetingId: string;
   readonly _id: string;
   readonly sessionUserId: string;
   readonly userId: string;

@@ -12,13 +12,22 @@ export class MeetingDtoRepository {
   ) {}
 
   async find(_id: string): Promise<MeetingDto> {
-    return await this.meetingModel
+    return this.meetingModel.findOne({
+      _id: _id,
+      isActive: true,
+    });
+  }
+
+  async findMembers(_id: string): Promise<MeetingDto> {
+    return this.meetingModel
       .findOne({
         _id: _id,
         isActive: true,
       })
-      .populate({ path: 'activeMembers' });
+      .populate({ path: 'activeMembers' })
+      .populate({ path: 'activeViewers' });
   }
+
   async findAttr(entityFilterQuery: MeetingDocument): Promise<MeetingDto> {
     return this.meetingModel.findOne(entityFilterQuery);
   }

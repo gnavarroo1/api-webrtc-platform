@@ -49,7 +49,7 @@ export class StartMeetingBroadcastHandler
     meeting.commit();
     this.wssGateway.wss
       .to(meeting.id)
-      .emit('start-broadcasting-session', meeting.isActive);
+      .emit('startBroadcastingSession', meeting.isBroadcasting);
     return meeting;
   }
 }

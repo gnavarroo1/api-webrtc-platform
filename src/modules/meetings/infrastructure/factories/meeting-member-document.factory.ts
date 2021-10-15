@@ -20,6 +20,7 @@ export class MeetingMemberDocumentFactory
       memberType: entity.memberType,
       isActive: entity.isActive,
       isScreenSharing: entity.isScreenSharing,
+      canScreenShare: entity.canScreenShare,
       connectionType: entity.connectionType,
       produceAudioAllowed: entity.produceAudioAllowed,
       produceAudioEnabled: entity.produceAudioEnabled,
@@ -36,6 +37,7 @@ export class MeetingMemberDocumentFactory
       _produceAudioAllowed: entitySchema.produceAudioAllowed,
       _produceVideoEnabled: entitySchema.produceVideoEnabled,
       _produceVideoAllowed: entitySchema.produceVideoAllowed,
+      _canScreenShare: entitySchema.canScreenShare,
     };
     return new MeetingMember(
       entitySchema._id.toHexString(),

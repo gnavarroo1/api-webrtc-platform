@@ -59,13 +59,19 @@ export class AddMeetingMemberHandler
         ],
       });
     let meetingMember: MeetingMember;
-
+    const isMeetingCreator =
+      meeting.meetingCreatorId === addMeetingMemberRequest.sessionUserId ||
+      meeting.meetingCreatorId === addMeetingMemberRequest.userId;
     if (meetingMemberOrError.isSuccess) {
       meetingMember = meetingMemberOrError.getValue();
       //Validar si es que el miembro se encuentra activo.
       if (meetingMember.isActive === false) {
         meetingMember.isActive = true;
         meetingMember.socketId = socketId;
+        meetingMember.connectionType = addMeetingMemberRequest.connectionType;
+        meetingMember.produceAudioEnabled = false;
+        meetingMember.produceVideoEnabled = false;
+        meetingMember.isScreenSharing = false;
         await this.meetingMemberEntityRepository.findOneAndReplaceByAttr(
           {
             _id: new ObjectId(meetingMember.id),
@@ -88,6 +94,7 @@ export class AddMeetingMemberHandler
           addMeetingMemberRequest.memberType,
           {
             _connectionType: addMeetingMemberRequest.connectionType,
+            _canScreenShare: isMeetingCreator,
             _isScreenSharing: false,
             _produceVideoAllowed: true,
             _produceAudioAllowed: true,
@@ -99,11 +106,11 @@ export class AddMeetingMemberHandler
     }
     meetingMember.commit();
     return Result.ok<AddMeetingParticipantResponse>({
-      isMeetingCreator:
-        meeting.meetingCreatorId === meetingMember.sessionUserId ||
-        meeting.meetingCreatorId === meetingMember.userId,
+      isMeetingCreator: isMeetingCreator,
       memberType: meetingMember.memberType,
       nickname: meetingMember.nickname,
+      meetingId: meetingMember.meetingId,
+      canScreenShare: meetingMember.canScreenShare,
       produceVideoAllowed: meetingMember.produceVideoAllowed,
       produceVideoEnabled: meetingMember.produceVideoEnabled,
       produceAudioAllowed: meetingMember.produceAudioAllowed,

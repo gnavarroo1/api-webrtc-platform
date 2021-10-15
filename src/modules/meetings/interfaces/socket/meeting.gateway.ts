@@ -271,19 +271,41 @@ export class MeetingGateway
     }
   }
 
-  @SubscribeMessage('startBroadcastingSession')
-  handleStartBroadcastingSession(
+  @SubscribeMessage('toggleScreenSharePermission')
+  async handleToggleMemberScreenSharePermission(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: any,
+  ): Promise<any> {
+    const updateMeetingMemberOrError = await this.commandBus.execute<
+      UpdateMeetingMemberCommand,
+      Result<any>
+    >(new UpdateMeetingMemberCommand(payload));
+    if (!updateMeetingMemberOrError.isFailure) {
+      client.to(payload.meetingId).emit('toggleScreenSharePermission', payload);
+      return {
+        success: true,
+      };
+    } else {
+      return {
+        success: false,
+        payload: updateMeetingMemberOrError.error,
+      };
+    }
+  }
+
+  @SubscribeMessage('chatMessage')
+  handleChatMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: any,
   ): any {
-    client.to(payload.meetingId).emit('startBroadcastingSession', payload);
+    client.to(payload.meetingId).emit('chatMessage', payload.message);
   }
-
-  @SubscribeMessage('endBroadcastingSession')
-  handleEndBroadcastingSession(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() payload,
-  ) {
-    client.to(payload.meetingId).emit('endBroadcastingSession', payload);
-  }
+  //
+  // @SubscribeMessage('endBroadcastingSession')
+  // handleEndBroadcastingSession(
+  //   @ConnectedSocket() client: Socket,
+  //   @MessageBody() payload,
+  // ) {
+  //   client.to(payload.meetingId).emit('endBroadcastingSession', payload);
+  // }
 }

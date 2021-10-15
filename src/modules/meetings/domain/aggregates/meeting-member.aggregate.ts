@@ -101,6 +101,12 @@ export class MeetingMember extends AggregateRoot {
   get isScreenSharing(): boolean {
     return this._media._isScreenSharing;
   }
+  set canScreenShare(value: boolean) {
+    this._media._canScreenShare = value;
+  }
+  get canScreenShare(): boolean {
+    return this._media._canScreenShare;
+  }
 
   get connectionType(): string {
     return this._media._connectionType;

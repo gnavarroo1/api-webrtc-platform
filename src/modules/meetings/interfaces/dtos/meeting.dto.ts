@@ -7,5 +7,5 @@ export class MeetingDto {
   readonly isActive: boolean;
   readonly meetingCreatorId?: Types.ObjectId;
   readonly activeMembers?: MeetingMemberDto[];
-  readonly activeProducerMembersScreenSharing?: MeetingMemberDto[];
+  readonly activeViewers?: MeetingMemberDto[];
 }
