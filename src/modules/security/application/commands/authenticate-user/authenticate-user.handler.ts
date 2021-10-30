@@ -19,7 +19,6 @@ export class AuthenticateUserHandler
   ) {}
   async execute({
     authenticateUserRequest,
-    sessionId,
   }: AuthenticateUserCommand): Promise<AuthenticateUserResponseDto> {
     const user = await this.securityService.findOneByUsername(
       authenticateUserRequest.username,
@@ -30,17 +29,36 @@ export class AuthenticateUserHandler
       user.hash,
       user.salt,
     );
+
     if (!validate) {
       throw new HttpException(
-        ErrorMessage.CREDENTIALS_ERROR,
+        {
+          validationMessage: {
+            validation: {
+              invalid: ErrorMessage.CREDENTIALS_ERROR,
+            },
+          },
+        },
         HttpStatus.UNAUTHORIZED,
       );
     }
+
+    // if (!user.verified) {
+    //   throw new HttpException(
+    //     {
+    //       validationMessage: {
+    //         validation: {
+    //           notVerified: `User email isn't verified.`,
+    //         },
+    //       },
+    //     },
+    //     HttpStatus.NOT_FOUND,
+    //   );
+    // }
+
     const payload = {
       username: user.username,
       sub: user._id,
-      isGuest: false,
-      sessionId: sessionId,
     };
     return {
       accessToken: this.jwtService.sign(payload),

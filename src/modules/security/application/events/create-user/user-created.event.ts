@@ -1,3 +1,5 @@
+import { VerificationEmailDto } from '../../../interfaces/dtos/event-dto/verification-email-dto';
+
 export class UserCreatedEvent {
-  constructor(public readonly userId: string) {}
+  constructor(public readonly verification: VerificationEmailDto) {}
 }

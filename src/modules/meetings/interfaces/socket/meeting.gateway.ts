@@ -38,25 +38,42 @@ export class MeetingGateway
 
   handleDisconnect(@ConnectedSocket() client: Socket): any {
     this.logger.log('Client disconnected: ' + client.id);
+    this.commandBus
+      .execute<RemoveMeetingMemberCommand, Result<any>>(
+        new RemoveMeetingMemberCommand({
+          socketId: client.id,
+        }),
+      )
+      .then((meetingMemberOrError) => {
+        if (!meetingMemberOrError.isFailure) {
+          const { meetingId, id } =
+            meetingMemberOrError.getValue() as MeetingMember;
+          this.wss
+            .to(meetingId)
+            .emit('meetingMemberDisconnected', { sender: id });
+        } else {
+          this.logger.error('isFailure', meetingMemberOrError.error);
+        }
+      });
   }
 
   @SubscribeMessage('disconnecting')
   async handleDisconnecting(@ConnectedSocket() client: Socket): Promise<void> {
     this.logger.log('Client disconnecting: ' + client.id);
-    const meetingMemberOrError = await this.commandBus.execute<
-      RemoveMeetingMemberCommand,
-      Result<any>
-    >(
-      new RemoveMeetingMemberCommand({
-        socketId: client.id,
-      }),
-    );
-
-    if (!meetingMemberOrError.isFailure) {
-      const { meetingId, id } =
-        meetingMemberOrError.getValue() as MeetingMember;
-      this.wss.to(meetingId).emit('meetingMemberDisconnected', { sender: id });
-    }
+    // const meetingMemberOrError = await this.commandBus.execute<
+    //   RemoveMeetingMemberCommand,
+    //   Result<any>
+    // >(
+    //   new RemoveMeetingMemberCommand({
+    //     socketId: client.id,
+    //   }),
+    // );
+    //
+    // if (!meetingMemberOrError.isFailure) {
+    //   const { meetingId, id } =
+    //     meetingMemberOrError.getValue() as MeetingMember;
+    //   this.wss.to(meetingId).emit('meetingMemberDisconnected', { sender: id });
+    // }
   }
 
   @SubscribeMessage('onDisconnect')
@@ -174,7 +191,6 @@ export class MeetingGateway
       Result<any>
     >(new UpdateMeetingMemberCommand(payload));
     if (!updateMeetingMemberOrError.isFailure) {
-      // const updateMeetingMember = updateMeetingMemberOrError.getValue();
       client.to(payload.meetingId).emit('endScreenSharing', payload);
     } else {
       return {
@@ -289,6 +305,28 @@ export class MeetingGateway
       return {
         success: false,
         payload: updateMeetingMemberOrError.error,
+      };
+    }
+  }
+
+  @SubscribeMessage('toggleConnectionType')
+  async handleToggleConnectionType(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: any,
+  ): Promise<any> {
+    const updateMeetingMemberOrError = await this.commandBus.execute<
+      UpdateMeetingMemberCommand,
+      Result<any>
+    >(new UpdateMeetingMemberCommand(payload));
+    if (updateMeetingMemberOrError.isFailure) {
+      return {
+        success: false,
+        payload: updateMeetingMemberOrError.error,
+      };
+    } else {
+      client.to(payload.meetingId).emit('toggleConnectionType', payload);
+      return {
+        success: true,
       };
     }
   }

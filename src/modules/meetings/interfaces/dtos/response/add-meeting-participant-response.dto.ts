@@ -7,7 +7,6 @@ export class AddMeetingParticipantResponse {
   readonly canScreenShare: boolean;
   readonly meetingId: string;
   readonly _id: string;
-  readonly sessionUserId: string;
   readonly userId: string;
   readonly nickname: string;
   readonly memberType: string;

@@ -7,10 +7,6 @@ export class AddMeetingMemberRequest {
 
   @IsString()
   @IsNotEmpty()
-  readonly sessionUserId: string;
-
-  @IsString()
-  @IsNotEmpty()
   readonly meetingId: string;
 
   @IsString()

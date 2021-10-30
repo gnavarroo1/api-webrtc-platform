@@ -64,8 +64,6 @@ export class MeetingController {
     @Request() req: any,
     @Body() request: any,
   ): Promise<CreateMeetingResponse> {
-    const user = req.user;
-    console.log(user);
     const createMeetingRequest: CreateMeetingRequest = {
       meetingCreatorId: request.meetingCreatorId,
     };

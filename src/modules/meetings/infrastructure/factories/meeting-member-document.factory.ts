@@ -12,7 +12,6 @@ export class MeetingMemberDocumentFactory
   create(entity: MeetingMember): MeetingMemberDocument {
     return {
       _id: new ObjectId(entity.id),
-      sessionUserId: new ObjectId(entity.sessionUserId),
       userId: new ObjectId(entity.userId),
       meetingId: new ObjectId(entity.meetingId),
       nickname: entity.nickname,
@@ -42,7 +41,6 @@ export class MeetingMemberDocumentFactory
     return new MeetingMember(
       entitySchema._id.toHexString(),
       entitySchema.userId.toHexString(),
-      entitySchema.sessionUserId.toHexString(),
       entitySchema.meetingId.toHexString(),
       entitySchema.socketId,
       entitySchema.nickname,

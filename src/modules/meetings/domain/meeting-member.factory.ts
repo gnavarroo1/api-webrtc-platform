@@ -13,7 +13,6 @@ export class MeetingMemberFactory implements EntityFactory<MeetingMember> {
 
   async create(
     userId: string,
-    sessionUserId: string,
     meetingId: string,
     socketId: string,
     nickname: string,
@@ -24,7 +23,6 @@ export class MeetingMemberFactory implements EntityFactory<MeetingMember> {
     const meetingMember = new MeetingMember(
       new ObjectId().toHexString(),
       userId,
-      sessionUserId,
       meetingId,
       socketId,
       nickname,

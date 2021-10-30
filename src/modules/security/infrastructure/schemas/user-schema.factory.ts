@@ -15,6 +15,7 @@ export class UserSchemaFactory
       email: entity.email,
       firstname: entity.firstname,
       lastname: entity.lastname,
+      verified: entity.verified,
       salt: entity.salt,
       hash: entity.hash,
     };
@@ -29,6 +30,7 @@ export class UserSchemaFactory
       entitySchema.lastname,
       entitySchema.salt,
       entitySchema.hash,
+      entitySchema.verified,
     );
   }
 }

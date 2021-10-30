@@ -10,11 +10,6 @@ export class MeetingMemberDocument extends IdentifiableEntitySchema {
   })
   readonly userId: Types.ObjectId;
   @Prop({
-    type: ObjectID,
-    required: true,
-  })
-  readonly sessionUserId: Types.ObjectId;
-  @Prop({
     type: SchemaTypes.ObjectId,
     ref: 'meetings',
     required: true,

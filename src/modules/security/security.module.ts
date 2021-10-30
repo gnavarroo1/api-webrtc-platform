@@ -12,6 +12,8 @@ import { UserSchemaFactory } from './infrastructure/schemas/user-schema.factory'
 import { SecurityController } from './interfaces/rest/security.controller';
 import { SharedModule } from '../../shared/shared.module';
 import { SecurityService } from './application/services/security.service';
+import { EmailService } from './application/services/email.service';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -23,6 +25,7 @@ import { SecurityService } from './application/services/security.service';
       },
     ]),
     SharedModule,
+    ConfigModule,
   ],
   controllers: [SecurityController],
   providers: [
@@ -33,7 +36,8 @@ import { SecurityService } from './application/services/security.service';
     ...UserCommandHandlers,
     ...UserEventHandlers,
     SecurityService,
+    EmailService,
   ],
-  exports: [SecurityService],
+  exports: [SecurityService, EmailService],
 })
 export class SecurityModule {}

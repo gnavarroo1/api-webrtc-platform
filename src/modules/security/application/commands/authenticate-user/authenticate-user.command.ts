@@ -3,6 +3,5 @@ import { AuthenticateUserRequestDto } from '../../../interfaces/dtos/requests/au
 export class AuthenticateUserCommand {
   constructor(
     public readonly authenticateUserRequest: AuthenticateUserRequestDto,
-    public readonly sessionId: string,
   ) {}
 }

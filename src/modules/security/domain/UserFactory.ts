@@ -3,12 +3,11 @@ import { ObjectId } from 'mongodb';
 import { EntityFactory } from '../../../shared/generics/entity.factory';
 import { User } from './aggregates/User';
 import { UserEntityRepository } from '../infrastructure/repositories/user-entity.repository';
-import * as crypto from 'crypto';
+import { UserCreatedEvent } from '../application/events/create-user/user-created.event';
 
 @Injectable()
 export class UserFactory implements EntityFactory<User> {
   constructor(private readonly userEntityRepository: UserEntityRepository) {}
-  salt = crypto.randomBytes(16).toString('hex');
   async create(
     username: string,
     email: string,
@@ -16,6 +15,7 @@ export class UserFactory implements EntityFactory<User> {
     lastname: string,
     salt: string,
     hash: string,
+    verified = false,
   ): Promise<User> {
     const user = new User(
       new ObjectId().toHexString(),
@@ -25,8 +25,16 @@ export class UserFactory implements EntityFactory<User> {
       lastname,
       salt,
       hash,
+      verified,
     );
     await this.userEntityRepository.create(user);
+    user.apply(
+      new UserCreatedEvent({
+        email: email,
+        _id: user.id,
+        username: username,
+      }),
+    );
     return user;
   }
 }

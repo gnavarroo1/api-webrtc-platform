@@ -64,6 +64,8 @@ export class UpdateMeetingMemberHandler
         case 'produceVideoEnabled':
           meetingMember.produceVideoEnabled = properties[propertiesKey];
           break;
+        case 'connectionType':
+          meetingMember.connectionType = properties[propertiesKey];
       }
     }
     await this.meetingMemberEntityRepository.findOneAndReplaceByAttr(

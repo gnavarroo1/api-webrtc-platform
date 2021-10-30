@@ -38,29 +38,15 @@ export class AddMeetingMemberHandler
     }
     const meeting = meetingOrError.getValue();
 
-    // Validar si es que la información enviada, userId o sessionUserId, se encuentran registradas en algun meeting member
-    // Se considera que tanto el userId como el sessionUserId no pueden estar asignados a más de un meeting member en la misma sesión
+    // Validar si es que la información enviada, userId , se encuentra registrada en algun meeting member
+    // Se considera que el userId  no puede estar asignado a más de un meeting member en la misma sesión
     const meetingMemberOrError =
       await this.meetingMemberEntityRepository.findOneAttr({
-        $and: [
-          {
-            $or: [
-              { userId: new ObjectId(addMeetingMemberRequest.userId) },
-              {
-                sessionUserId: new ObjectId(
-                  addMeetingMemberRequest.sessionUserId,
-                ),
-              },
-            ],
-          },
-          {
-            meetingId: addMeetingMemberRequest.meetingId,
-          },
-        ],
+        userId: new ObjectId(addMeetingMemberRequest.userId),
+        meetingId: addMeetingMemberRequest.meetingId,
       });
     let meetingMember: MeetingMember;
     const isMeetingCreator =
-      meeting.meetingCreatorId === addMeetingMemberRequest.sessionUserId ||
       meeting.meetingCreatorId === addMeetingMemberRequest.userId;
     if (meetingMemberOrError.isSuccess) {
       meetingMember = meetingMemberOrError.getValue();
@@ -72,6 +58,7 @@ export class AddMeetingMemberHandler
         meetingMember.produceAudioEnabled = false;
         meetingMember.produceVideoEnabled = false;
         meetingMember.isScreenSharing = false;
+        meetingMember.memberType = addMeetingMemberRequest.memberType;
         await this.meetingMemberEntityRepository.findOneAndReplaceByAttr(
           {
             _id: new ObjectId(meetingMember.id),
@@ -87,7 +74,6 @@ export class AddMeetingMemberHandler
       meetingMember = this.eventPublisher.mergeObjectContext(
         await this.meetingMemberFactory.create(
           addMeetingMemberRequest.userId,
-          addMeetingMemberRequest.sessionUserId,
           addMeetingMemberRequest.meetingId,
           socketId,
           addMeetingMemberRequest.nickname,
@@ -118,7 +104,6 @@ export class AddMeetingMemberHandler
       connectionType: meetingMember.connectionType,
       userId: meetingMember.userId,
       _id: meetingMember.id,
-      sessionUserId: meetingMember.sessionUserId,
     });
   }
 }

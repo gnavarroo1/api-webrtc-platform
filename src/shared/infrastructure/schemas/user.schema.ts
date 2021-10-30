@@ -12,6 +12,8 @@ export class UserSchema extends IdentifiableEntitySchema {
   readonly username: string;
   @Prop({ type: String, required: true, unique: true })
   readonly email: string;
+  @Prop({ type: Boolean, default: false })
+  verified: boolean;
   @Prop()
   salt: string;
   @Prop()

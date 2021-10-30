@@ -14,4 +14,7 @@ export class UserDtoRepository {
   async findAttr(entityFilterQuery: FilterQuery<UserSchema>): Promise<UserDto> {
     return this.userModel.findOne(entityFilterQuery);
   }
+  async find(entityFilterQuery: FilterQuery<UserSchema>): Promise<UserDto[]> {
+    return this.userModel.find(entityFilterQuery);
+  }
 }

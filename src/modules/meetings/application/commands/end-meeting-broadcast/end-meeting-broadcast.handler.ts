@@ -32,10 +32,7 @@ export class EndMeetingBroadcastHandler
     }
     const meeting: Meeting = meetingOrError.getValue();
 
-    if (
-      meetingBroadcastRequest.sessionUserId !== meeting.meetingCreatorId &&
-      meetingBroadcastRequest.userId !== meeting.meetingCreatorId
-    ) {
+    if (meetingBroadcastRequest.userId !== meeting.meetingCreatorId) {
       throw new HttpException(
         ErrorMessage.CREDENTIALS_ERROR,
         HttpStatus.UNAUTHORIZED,

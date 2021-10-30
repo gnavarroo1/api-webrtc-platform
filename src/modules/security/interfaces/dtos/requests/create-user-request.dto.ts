@@ -16,7 +16,12 @@ export class CreateUserRequest {
   readonly username: string;
 
   @IsNotEmpty()
-  @IsEmail()
+  @IsEmail(
+    {},
+    {
+      message: 'Invalid email',
+    },
+  )
   @MaxLength(100)
   readonly email: string;
 

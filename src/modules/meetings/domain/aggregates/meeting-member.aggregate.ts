@@ -5,7 +5,6 @@ export class MeetingMember extends AggregateRoot {
   constructor(
     private readonly _id: string,
     private readonly _userId: string,
-    private readonly _sessionUserId: string,
     private readonly _meetingId: string,
     private _socketId: string,
     private _nickname: string,
@@ -22,10 +21,6 @@ export class MeetingMember extends AggregateRoot {
 
   get userId(): string {
     return this._userId;
-  }
-
-  get sessionUserId(): string {
-    return this._sessionUserId;
   }
 
   get meetingId(): string {

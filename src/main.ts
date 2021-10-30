@@ -2,8 +2,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as helmet from 'helmet';
-import { ValidationPipe } from '@nestjs/common';
+import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import * as fs from 'fs';
+import { ValidationError } from 'class-validator';
 
 // somewhere in your code
 
@@ -28,10 +29,22 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      exceptionFactory: (validationErrors: ValidationError[] = []) => {
+        const errors = {};
+        validationErrors.forEach((value) => {
+          errors[value.property] = {
+            ...value.constraints,
+          };
+        });
+        return new BadRequestException({ validationMessage: errors });
+      },
+    }),
+  );
   app.enableCors();
   app.use(helmet());
-  // mongoose.set('debug', true);
+
   await app.listen(3000);
 }
 bootstrap();

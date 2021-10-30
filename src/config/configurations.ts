@@ -20,6 +20,15 @@ export const configuration = (): Configuration => {
     jwt: {
       secretOrKey: process.env.SECRET || 'secret12345',
     },
+    email: {
+      emailForgotPasswordUrl: process.env.EMAIL_FORGOT_PASSWORD_URL,
+      emailConfirmationUrl: process.env.EMAIL_CONFIRMATION_URL,
+      emailUser: process.env.EMAIL_USER,
+      emailService: process.env.EMAIL_SERVICE,
+      emailPassword: process.env.EMAIL_PASSWORD,
+      expiresIn: process.env.JWT_VERIFICATION_TOKEN_EXPIRATION_TIME,
+      secret: process.env.JWT_VERIFICATION_TOKEN_SECRET,
+    },
   };
   return defaultConfiguration;
 };

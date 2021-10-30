@@ -1,29 +1,47 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { UserFactory } from '../../../domain/UserFactory';
 import { CreateUserCommand } from './create-user.command';
-import { JwtService } from '@nestjs/jwt';
 import { SecurityService } from '../../services/security.service';
-import { randomUUID } from 'crypto';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 @CommandHandler(CreateUserCommand)
 export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
   constructor(
     private readonly userFactory: UserFactory,
     private readonly eventPublisher: EventPublisher,
-    private jwtService: JwtService,
     private securityService: SecurityService,
   ) {}
-  async execute({
-    createUserRequest,
-    sessionId,
-  }: CreateUserCommand): Promise<any> {
+  async execute({ createUserRequest }: CreateUserCommand): Promise<any> {
     const { salt, hash } = this.securityService.getSaltHashPassword(
       createUserRequest.password,
     );
+    const username = createUserRequest.username.toLowerCase();
+    const email = createUserRequest.email.toLowerCase();
+
+    const result = await this.securityService.findDuplicate(username, email);
+
+    if (result.length > 0) {
+      const errors: Record<string, any> = {};
+      result.forEach((user) => {
+        if (user.username === username) {
+          errors.username = {
+            duplicate: 'username is already registered',
+          };
+        }
+        if (user.email === email) {
+          errors.email = { duplicate: 'email is already registered' };
+        }
+      });
+      throw new HttpException(
+        { validationMessage: errors },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const user = this.eventPublisher.mergeObjectContext(
       await this.userFactory.create(
-        createUserRequest.username,
-        createUserRequest.email,
+        username,
+        email,
         createUserRequest.firstName,
         createUserRequest.lastName,
         salt,
@@ -31,15 +49,11 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
       ),
     );
     user.commit();
-
-    const payload = {
-      username: user.username,
-      sub: user.id,
-      isGuest: false,
-      sessionId: sessionId ? sessionId : randomUUID(),
-    };
     return {
-      accessToken: this.jwtService.sign(payload),
+      data: {
+        username: username,
+        email: email,
+      },
     };
   }
 }

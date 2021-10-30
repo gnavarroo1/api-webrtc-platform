@@ -1,6 +1,36 @@
 import { AggregateRoot } from '@nestjs/cqrs';
 
 export class User extends AggregateRoot {
+  set username(value: string) {
+    this._username = value;
+  }
+
+  set email(value: string) {
+    this._email = value;
+  }
+
+  set firstname(value: string) {
+    this._firstname = value;
+  }
+
+  set lastname(value: string) {
+    this._lastname = value;
+  }
+
+  set salt(value: string) {
+    this._salt = value;
+  }
+
+  set hash(value: string) {
+    this._hash = value;
+  }
+  get verified(): boolean {
+    return this._verified;
+  }
+
+  set verified(value: boolean) {
+    this._verified = value;
+  }
   constructor(
     private readonly _id: string,
     private _username: string,
@@ -9,6 +39,7 @@ export class User extends AggregateRoot {
     private _lastname: string,
     private _salt: string,
     private _hash: string,
+    private _verified: boolean = false,
   ) {
     super();
   }

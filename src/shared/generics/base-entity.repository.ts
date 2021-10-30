@@ -17,7 +17,7 @@ export abstract class BaseEntityRepository<
     id: string,
     entity: TEntity,
   ): Promise<Result<TSchema>> {
-    return await this.findOneAndReplace(
+    return this.findOneAndReplace(
       { _id: new ObjectID(id) } as FilterQuery<TSchema>,
       entity,
     );
@@ -36,6 +36,6 @@ export abstract class BaseEntityRepository<
     entityFilterQuery: FilterQuery<TSchema>,
     entity: TEntity,
   ): Promise<Result<TSchema>> {
-    return await this.findOneAndReplace(entityFilterQuery, entity);
+    return this.findOneAndReplace(entityFilterQuery, entity);
   }
 }
