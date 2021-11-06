@@ -14,14 +14,14 @@ import { ResendConfirmationEmailDto } from '../../interfaces/dtos/requests/resen
 @Injectable()
 export class SecurityService {
   constructor(
-    private readonly userDtoRespository: UserDtoRepository,
-    private readonly userEntityRespository: UserEntityRepository,
+    private readonly userDtoRepository: UserDtoRepository,
+    private readonly userEntityRepository: UserEntityRepository,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly emailService: EmailService,
   ) {}
   async findOneByUsername(username: string): Promise<UserDto> {
-    return this.userDtoRespository
+    return this.userDtoRepository
       .findAttr({ username: username })
       .then((user) => {
         if (user) {
@@ -40,7 +40,7 @@ export class SecurityService {
       });
   }
   async findDuplicate(username: string, email: string): Promise<UserDto[]> {
-    return this.userDtoRespository.find({
+    return this.userDtoRepository.find({
       $or: [
         {
           username: username,
@@ -53,7 +53,7 @@ export class SecurityService {
   }
 
   async findOneById(id: string): Promise<UserDto> {
-    const user = this.userDtoRespository.findAttr({ _id: id });
+    const user = this.userDtoRepository.findAttr({ _id: id });
     if (user) {
       return user;
     }
@@ -65,7 +65,7 @@ export class SecurityService {
   }
 
   async resetPasswordHandler(resetPasswordDto: ResetPasswordRequestDto) {
-    return this.userEntityRespository
+    return this.userEntityRepository
       .findOneAttr({
         username: resetPasswordDto.username,
       })
@@ -88,7 +88,7 @@ export class SecurityService {
         );
         user.salt = salt;
         user.hash = hash;
-        return this.userEntityRespository
+        return this.userEntityRepository
           .findOneAndReplaceByAttr(
             {
               _id: new ObjectId(user.id),
@@ -116,7 +116,7 @@ export class SecurityService {
   }
 
   async verifyEmailHandler(verifyEmail: VerifyEmailRequestDto) {
-    return this.userEntityRespository
+    return this.userEntityRepository
       .findOneAttr({
         username: verifyEmail.username,
         email: verifyEmail.email,
@@ -136,7 +136,7 @@ export class SecurityService {
         }
         const user = userOrError.getValue();
         user.verified = true;
-        return this.userEntityRespository
+        return this.userEntityRepository
           .findOneAndReplaceByAttr(
             {
               _id: new ObjectId(user.id),
@@ -164,7 +164,7 @@ export class SecurityService {
   }
 
   async forgotPasswordHandler(email: string): Promise<any> {
-    return this.userDtoRespository.findAttr({ email: email }).then((user) => {
+    return this.userDtoRepository.findAttr({ email: email }).then((user) => {
       if (user) {
         const token = this.jwtService.sign(
           {
@@ -209,7 +209,7 @@ export class SecurityService {
   }
 
   async reSendVerificationEmail(verification: ResendConfirmationEmailDto) {
-    return this.userDtoRespository
+    return this.userDtoRepository
       .findAttr({ email: verification.email })
       .then((user) => {
         if (user) {

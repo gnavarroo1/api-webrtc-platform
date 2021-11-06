@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { configuration } from './config/configurations';
 import { MeetingsModule } from './modules/meetings/meetings.module';
 import { SecurityModule } from './modules/security/security.module';
 import { AuthModule } from './auth/auth.module';
+import { MonitoringModule } from './modules/monitoring/monitoring.module';
 
 @Module({
   imports: [
@@ -17,10 +17,11 @@ import { AuthModule } from './auth/auth.module';
     }),
     MeetingsModule,
     SecurityModule,
+    MonitoringModule,
     AuthModule,
   ],
   controllers: [],
-  providers: [AppService, ConfigService],
+  providers: [ConfigService],
   exports: [ConfigService],
 })
 export class AppModule {}
