@@ -52,9 +52,7 @@ export class MeetingMemberDocument extends IdentifiableEntitySchema {
   })
   readonly canScreenShare: boolean;
 }
-
 const MeetingMemberSchema = SchemaFactory.createForClass(MeetingMemberDocument);
-
 MeetingMemberSchema.virtual('meetingInfo', {
   ref: 'meetings',
   localField: 'meetingId',
@@ -64,5 +62,4 @@ MeetingMemberSchema.virtual('meetingInfo', {
     active: true,
   },
 });
-
 export { MeetingMemberSchema };

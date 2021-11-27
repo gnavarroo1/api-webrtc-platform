@@ -7,18 +7,13 @@ import { Logger } from '@nestjs/common';
 export class AddMeetingMemberSnapshotHandler
   implements ICommandHandler<AddMeetingMemberSnapshotCommand>
 {
-  constructor(
-    private monitoringService: MonitoringService, // private meetingMemberSnapshotEntityRepository: MeetingMemberSnapshotEntityRepository, // private meetingMemberSnapshotFactory: MeetingMemberSnapshotFactory, // private readonly eventPublisher: EventPublisher,
-  ) {}
+  constructor(private monitoringService: MonitoringService) {}
   private logger: Logger = new Logger('AddMeetingMemberSnapshotCommand');
   async execute({
     addMeetingMemberRequest,
   }: AddMeetingMemberSnapshotCommand): Promise<void> {
-    this.logger.warn('snapshot', addMeetingMemberRequest);
-    this.monitoringService
-      .addMeetingMemberSnapshot(addMeetingMemberRequest)
-      .then((data) => {
-        return;
-      });
+    return this.monitoringService.addMeetingMemberSnapshot(
+      addMeetingMemberRequest,
+    );
   }
 }

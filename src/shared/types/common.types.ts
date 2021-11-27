@@ -1,4 +1,5 @@
 export type TKind = 'video' | 'audio';
+
 export type MediaCapabilities = {
   _connectionType: string;
   _isScreenSharing: boolean;
@@ -9,40 +10,6 @@ export type MediaCapabilities = {
   _produceVideoEnabled: boolean;
 };
 
-export type P2PVideoStats = {
-  bytesSent?: number;
-  bytesReceived?: number;
-  packetsReceived?: number;
-  packetsSent?: number;
-  packetsLost?: number;
-  nackCountInbound?: number;
-  nackCountOutbound?: number;
-  framesSent?: number;
-  framesEncoded?: number;
-  qpSumOutbound?: number;
-  firCountOutbound?: number;
-  pliCountOutbound?: number;
-  framesReceived?: number;
-  framesDecoded?: number;
-  qpSumInbound?: number;
-  firCountInbound?: number;
-  pliCountInbound?: number;
-  timestamp?: number;
-  jitter?: number;
-  qualityLimitationReason?: 'none' | 'cpu' | 'bandwidth' | 'other';
-};
-export type P2PAudioStats = {
-  bytesSent?: number;
-  bytesReceived?: number;
-  packetsReceived?: number;
-  packetsSent?: number;
-  packetsLost?: number;
-  nackCountInbound?: number;
-  nackCountOutbound?: number;
-  timestamp?: number;
-  jitter?: number;
-};
-
 export type TransportStats = {
   bytesSent?: number;
   bytesReceived?: number;
@@ -51,32 +18,86 @@ export type TransportStats = {
   timestamp?: number;
 };
 
-export type P2PStatsSnapshot = {
-  transport?: TransportStats;
-  video?: P2PVideoStats;
-  audio?: P2PAudioStats;
+export type BaseConsumerStats = {
+  packetsLost?: number;
+  bytesReceived?: number;
+  packetsReceived?: number;
+  nackCountInbound?: number;
+  jitter?: number;
+  timestamp?: number;
 };
 
-export type VideoProducerStats = {
+export type BaseProducerStats = {
   bitrate?: number;
-  nackCount: number;
-  firCount?: number;
-  pliCount?: number;
-  jitter?: number;
   byteCount?: number;
-  packetCount?: number;
-  packetsLost?: number;
-  timestamp: number;
-};
-export type AudioProducerStats = {
-  bitrate?: number;
   nackCount?: number;
   packetCount?: number;
   packetsLost?: number;
   jitter?: number;
-  byteCount?: number;
   timestamp: number;
 };
+export type VideoConsumerStats = BaseConsumerStats & {
+  framesReceived?: number;
+  framesDecoded?: number;
+  qpSumInbound?: number;
+  firCountInbound?: number;
+  pliCountInbound?: number;
+  framesDropped?: number;
+  remoteFrameHeight?: number;
+  remoteFrameWidth?: number;
+};
+
+type VideoInboundStats = {
+  framesReceived?: number;
+  framesDecoded?: number;
+  qpSumInbound?: number;
+  firCountInbound?: number;
+  pliCountInbound?: number;
+  qualityLimitationReason?: 'none' | 'cpu' | 'bandwidth' | 'other';
+  framesDropped?: number;
+  remoteFrameHeight?: number;
+  remoteFrameWidth?: number;
+};
+type VideoOutboundStats = {
+  framesSent?: number;
+  framesEncoded?: number;
+  qpSumOutbound?: number;
+  firCountOutbound?: number;
+  pliCountOutbound?: number;
+  localFrameHeight?: number;
+  localFrameWidth?: number;
+};
+
+type BaseInboundStats = {
+  bytesReceived?: number;
+  packetsReceived?: number;
+  packetsLost?: number;
+  jitter?: number;
+  nackCountInbound?: number;
+  timestamp?: number;
+};
+type BaseOutboundStats = {
+  bytesSent?: number;
+  packetsSent?: number;
+  nackCountOutbound?: number;
+  timestamp?: number;
+};
+
+export type P2PVideoStats = BaseOutboundStats &
+  BaseInboundStats &
+  VideoOutboundStats &
+  VideoInboundStats;
+
+export type P2PAudioStats = BaseOutboundStats & BaseInboundStats;
+
+export type VideoProducerStats = BaseProducerStats & {
+  firCount?: number;
+  pliCount?: number;
+};
+
+export type AudioProducerStats = BaseProducerStats;
+
+export type AudioConsumerStats = BaseConsumerStats;
 
 export type ProducerStatsSnapshot = {
   transport?: TransportStats;
@@ -84,32 +105,20 @@ export type ProducerStatsSnapshot = {
   audio?: AudioProducerStats;
 };
 
-export type VideoConsumerStats = {
-  transport?: TransportStats;
-  bytesReceived?: number;
-  packetsReceived?: number;
-  framesReceived?: number;
-  framesDecoded?: number;
-  packetsLost?: number;
-  nackCountInbound?: number;
-  qpSumInbound?: number;
-  firCountInbound?: number;
-  pliCountInbound?: number;
-  timestamp?: number;
-};
-export type AudioConsumerStats = {
-  transport?: TransportStats;
-  packetsLost?: number;
-  bytesReceived?: number;
-  packetsReceived?: number;
-  nackCountInbound?: number;
-  timestamp?: number;
+export type ConsumerMediaStats = {
+  video?: VideoConsumerStats;
+  audio?: AudioConsumerStats;
 };
 
 export type ConsumerStatsSnapshot = {
   transport?: TransportStats;
-  video: Map<string, VideoConsumerStats>;
-  audio: Map<string, AudioConsumerStats>;
+  media: Record<string, ConsumerMediaStats>;
+};
+
+export type P2PStatsSnapshot = {
+  transport?: TransportStats;
+  video?: P2PVideoStats;
+  audio?: P2PAudioStats;
 };
 
 export type SfuStatsSnapshot = {

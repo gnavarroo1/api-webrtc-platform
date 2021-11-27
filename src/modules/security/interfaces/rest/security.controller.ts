@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Logger,
   Post,
   UsePipes,
   ValidationPipe,
@@ -27,9 +26,6 @@ export class SecurityController {
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
-  private logger: Logger = new Logger('SECURITY CONTROLLER');
-
-  // @UseGuards(JwtAuthGuard)
   @Post('sign-up')
   @UsePipes(new ValidationPipe({ transform: true }))
   async create(@Body() createUserRequest: CreateUserRequest): Promise<any> {
@@ -37,8 +33,6 @@ export class SecurityController {
       new CreateUserCommand(createUserRequest),
     );
   }
-
-  // @UseGuards(JwtAuthGuard)
   @Post('login')
   @UsePipes(new ValidationPipe({ transform: true }))
   async login(@Body() user: AuthenticateUserRequestDto): Promise<any> {

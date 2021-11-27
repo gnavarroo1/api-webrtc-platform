@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { MeetingMemberSnapshotDocument } from '../../../../shared/infrastructure/schemas/meeting-member-snapshot.schema';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class MeetingMemberSnapshotDtoRepository {
@@ -25,7 +26,7 @@ export class MeetingMemberSnapshotDtoRepository {
       },
       {
         $sort: {
-          createdAt: -1,
+          createdAt: 1,
         },
       },
       {
@@ -34,9 +35,9 @@ export class MeetingMemberSnapshotDtoRepository {
             {
               $skip: size * page,
             },
-            { $limit: page },
+            { $limit: size },
           ],
-          totalCount: [
+          recordsTotal: [
             {
               $count: 'count',
             },
@@ -54,7 +55,7 @@ export class MeetingMemberSnapshotDtoRepository {
     return this.meetingMemberSnapshotModel.aggregate([
       {
         $match: {
-          meetingId: meetingId,
+          meetingId: new ObjectId(meetingId),
         },
       },
       {
@@ -67,7 +68,7 @@ export class MeetingMemberSnapshotDtoRepository {
       },
       {
         $sort: {
-          createdAt: -1,
+          _id: 1,
         },
       },
       {
@@ -76,7 +77,7 @@ export class MeetingMemberSnapshotDtoRepository {
             {
               $skip: size * page,
             },
-            { $limit: page },
+            { $limit: size },
           ],
           totalCount: [
             {
@@ -88,9 +89,19 @@ export class MeetingMemberSnapshotDtoRepository {
     ]);
   }
   async findMeetingMemberSnapshots(meetingId: string, meetingMemberId: string) {
-    return this.meetingMemberSnapshotModel.find({
-      meetingId: meetingId,
-      meetingMemberId: meetingMemberId,
-    });
+    return this.meetingMemberSnapshotModel
+      .find({
+        meetingId: meetingId,
+        meetingMemberId: meetingMemberId,
+      })
+      .sort({ createdAt: 1 });
+  }
+  async findLastMeetingMemberSnapshot(meetingMemberId: string) {
+    return this.meetingMemberSnapshotModel
+      .find({
+        meetingMemberId: meetingMemberId,
+      })
+      .sort({ _id: -1 })
+      .limit(2);
   }
 }

@@ -28,17 +28,14 @@ export class MeetingGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
   constructor(private readonly commandBus: CommandBus) {}
-
   @WebSocketServer() wss: Server;
   private logger: Logger = new Logger('MeetingGateway');
-
   handleConnection(@ConnectedSocket() client: Socket): any {
     this.logger.log('Client connected: ' + client.id);
   }
-
-  handleDisconnect(@ConnectedSocket() client: Socket): any {
+  async handleDisconnect(@ConnectedSocket() client: Socket): Promise<void> {
     this.logger.log('Client disconnected: ' + client.id);
-    this.commandBus
+    await this.commandBus
       .execute<RemoveMeetingMemberCommand, Result<any>>(
         new RemoveMeetingMemberCommand({
           socketId: client.id,
@@ -56,32 +53,10 @@ export class MeetingGateway
         }
       });
   }
-
-  @SubscribeMessage('disconnecting')
-  async handleDisconnecting(@ConnectedSocket() client: Socket): Promise<void> {
-    this.logger.log('Client disconnecting: ' + client.id);
-    // const meetingMemberOrError = await this.commandBus.execute<
-    //   RemoveMeetingMemberCommand,
-    //   Result<any>
-    // >(
-    //   new RemoveMeetingMemberCommand({
-    //     socketId: client.id,
-    //   }),
-    // );
-    //
-    // if (!meetingMemberOrError.isFailure) {
-    //   const { meetingId, id } =
-    //     meetingMemberOrError.getValue() as MeetingMember;
-    //   this.wss.to(meetingId).emit('meetingMemberDisconnected', { sender: id });
-    // }
-  }
-
   @SubscribeMessage('onDisconnect')
   onDisconnect(@ConnectedSocket() client: Socket, @MessageBody() payload): any {
-    console.log(`TESTING ON DISCONNECT EVENT FOR CLIENT ${client.id}`);
     this.wss.to(payload.room).emit('userDisconnected', client.id);
   }
-
   @SubscribeMessage('joinMeeting')
   public async handleJoinMeeting(
     @ConnectedSocket() client: Socket,
@@ -94,7 +69,6 @@ export class MeetingGateway
           AddMeetingMemberCommand,
           Result<AddMeetingParticipantResponse>
         >(new AddMeetingMemberCommand(addMeetingMemberRequest, client.id));
-      console.log('retornando valores y emitiendo a otros usuarios conectados');
       if (!addMeetingParticipantResponseOrError.isFailure) {
         const addMeetingParticipantResponse =
           addMeetingParticipantResponseOrError.getValue();
@@ -114,14 +88,12 @@ export class MeetingGateway
         };
       }
     } catch (e) {
-      console.error(e);
       return {
         success: false,
         message: e.message,
       };
     }
   }
-
   @SubscribeMessage('endMeetingSession')
   handleEndMeetingSession(
     @ConnectedSocket() client: Socket,
@@ -131,7 +103,6 @@ export class MeetingGateway
       msg: 'endMeeting',
     });
   }
-
   @SubscribeMessage('updateMeetingMember')
   async handleUpdateMeetingParticipant(
     @ConnectedSocket() client: Socket,
@@ -161,7 +132,6 @@ export class MeetingGateway
     }
     return;
   }
-
   @SubscribeMessage('startScreenSharing')
   async handleStartScreenSharing(
     @ConnectedSocket() client: Socket,
@@ -180,7 +150,6 @@ export class MeetingGateway
       };
     }
   }
-
   @SubscribeMessage('endScreenSharing')
   async handleEndScreenSharing(
     @ConnectedSocket() client: Socket,
@@ -199,7 +168,6 @@ export class MeetingGateway
       };
     }
   }
-
   @SubscribeMessage('toggleGlobalAudio')
   async handleToggleGlobalAudio(
     @ConnectedSocket() client: Socket,
@@ -242,7 +210,6 @@ export class MeetingGateway
       };
     }
   }
-
   @SubscribeMessage('toggleAudio')
   async handleToggleMemberAudio(
     @ConnectedSocket() client: Socket,
@@ -264,7 +231,6 @@ export class MeetingGateway
       };
     }
   }
-
   @SubscribeMessage('toggleVideo')
   async handleToggleMemberVideo(
     @ConnectedSocket() client: Socket,
@@ -286,7 +252,6 @@ export class MeetingGateway
       };
     }
   }
-
   @SubscribeMessage('toggleScreenSharePermission')
   async handleToggleMemberScreenSharePermission(
     @ConnectedSocket() client: Socket,
@@ -308,7 +273,6 @@ export class MeetingGateway
       };
     }
   }
-
   @SubscribeMessage('toggleConnectionType')
   async handleToggleConnectionType(
     @ConnectedSocket() client: Socket,
@@ -330,7 +294,6 @@ export class MeetingGateway
       };
     }
   }
-
   @SubscribeMessage('chatMessage')
   handleChatMessage(
     @ConnectedSocket() client: Socket,
@@ -338,12 +301,4 @@ export class MeetingGateway
   ): any {
     client.to(payload.meetingId).emit('chatMessage', payload.message);
   }
-  //
-  // @SubscribeMessage('endBroadcastingSession')
-  // handleEndBroadcastingSession(
-  //   @ConnectedSocket() client: Socket,
-  //   @MessageBody() payload,
-  // ) {
-  //   client.to(payload.meetingId).emit('endBroadcastingSession', payload);
-  // }
 }

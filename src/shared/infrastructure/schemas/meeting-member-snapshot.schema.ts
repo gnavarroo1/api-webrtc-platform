@@ -26,13 +26,28 @@ export class MeetingMemberSnapshotDocument extends IdentifiableEntitySchema {
   })
   readonly meetingMemberId: Types.ObjectId;
   @Prop({
-    type: Array,
+    type: Map,
+    of: Object,
   })
-  readonly p2pSnapshots: P2PStatsSnapshot[];
+  readonly p2pSnapshots: Map<string, P2PStatsSnapshot>;
   @Prop({
     type: Object,
   })
   readonly sfuSnapshots: SfuStatsSnapshot;
+
+  @Prop({
+    type: Number,
+  })
+  readonly activeP2PConnections: number;
+  @Prop({
+    type: Number,
+  })
+  readonly timestamp: number;
+
+  @Prop({
+    type: Number,
+  })
+  readonly activeSFUConnections: number;
 }
 const MeetingMemberSnapshotSchema = SchemaFactory.createForClass(
   MeetingMemberSnapshotDocument,

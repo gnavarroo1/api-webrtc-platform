@@ -13,8 +13,6 @@ import { MeetingMemberDocument } from './meeting-member.schema';
   toObject: { virtuals: true },
 })
 export class MeetingDocument extends IdentifiableEntitySchema {
-  // @Prop()
-  // readonly name: string;
   @Prop({ type: SchemaTypes.ObjectId, required: true })
   readonly meetingCreatorId: Types.ObjectId;
   @Prop({ type: Boolean, default: false })
@@ -22,7 +20,6 @@ export class MeetingDocument extends IdentifiableEntitySchema {
   @Prop({ type: Boolean, default: true })
   readonly isActive: boolean;
 }
-
 const MeetingSchema = SchemaFactory.createForClass(MeetingDocument);
 MeetingSchema.virtual('activeMembers', {
   ref: MeetingMemberDocument.name,
@@ -52,5 +49,4 @@ MeetingSchema.virtual('activeViewers', {
     isActive: true,
   },
 });
-
 export { MeetingSchema };

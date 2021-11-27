@@ -1,3 +1,3 @@
 export class AddMeetingMemberSnapshotCommand {
-  constructor(public readonly addMeetingMemberRequest: any) {}
+  constructor(public readonly addMeetingMemberRequest: Record<string, any>) {}
 }

@@ -21,10 +21,6 @@ export class RemoveMeetingMemberHandler
     removeMeetingMemberRequest,
   }: RemoveMeetingMemberCommand): Promise<Result<any>> {
     try {
-      // const user = this.jwtService.decode(
-      //   removeMeetingMemberRequest.jwtToken,
-      // ) as JwtPayload;
-      console.warn('dto', removeMeetingMemberRequest);
       const meetingMemberOrError =
         await this.meetingMemberEntityRepository.findOneAttr({
           socketId: removeMeetingMemberRequest.socketId,

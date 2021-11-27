@@ -16,6 +16,9 @@ export class MeetingMemberSnapshotDocumentFactory
       meetingMemberId: new ObjectId(entity.meetingMemberId),
       p2pSnapshots: entity.p2pSnapshots,
       sfuSnapshots: entity.sfuSnapshots,
+      timestamp: entity.timestamp,
+      activeP2PConnections: entity.activeP2PConnections,
+      activeSFUConnections: entity.activeSFUConnections,
     };
   }
 
@@ -28,6 +31,9 @@ export class MeetingMemberSnapshotDocumentFactory
       entitySchema.meetingId.toHexString(),
       entitySchema.p2pSnapshots,
       entitySchema.sfuSnapshots,
+      entitySchema.activeP2PConnections,
+      entitySchema.activeSFUConnections,
+      entitySchema.timestamp,
     );
   }
 }

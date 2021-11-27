@@ -9,10 +9,37 @@ export class MeetingMemberSnapshot extends AggregateRoot {
     private readonly _id: string,
     private _meetingId: string,
     private _meetingMemberId: string,
-    private _p2pSnapshots: P2PStatsSnapshot[],
+    private _p2pSnapshots: Map<string, P2PStatsSnapshot>,
     private _sfuSnapshots: SfuStatsSnapshot,
+    private _activeP2PConnections: number,
+    private _activeSFUConnections: number,
+    private _timestamp: number,
   ) {
     super();
+  }
+
+  get activeP2PConnections(): number {
+    return this._activeP2PConnections;
+  }
+
+  set activeP2PConnections(value: number) {
+    this._activeP2PConnections = value;
+  }
+
+  get activeSFUConnections(): number {
+    return this._activeSFUConnections;
+  }
+
+  set activeSFUConnections(value: number) {
+    this._activeSFUConnections = value;
+  }
+
+  get timestamp(): number {
+    return this._timestamp;
+  }
+
+  set timestamp(value: number) {
+    this._timestamp = value;
   }
 
   get id(): string {
@@ -33,11 +60,11 @@ export class MeetingMemberSnapshot extends AggregateRoot {
     this._meetingMemberId = value;
   }
 
-  get p2pSnapshots(): P2PStatsSnapshot[] {
+  get p2pSnapshots(): Map<string, P2PStatsSnapshot> {
     return this._p2pSnapshots;
   }
 
-  set p2pSnapshots(value: P2PStatsSnapshot[]) {
+  set p2pSnapshots(value: Map<string, P2PStatsSnapshot>) {
     this._p2pSnapshots = value;
   }
 

@@ -19,8 +19,11 @@ export class MeetingMemberSnapshotFactory
   async create(
     meetingId: string,
     meetingMemberId: string,
-    p2pSnapshots: P2PStatsSnapshot[],
+    p2pSnapshots: Map<string, P2PStatsSnapshot>,
     sfuSnapshots: SfuStatsSnapshot,
+    activeP2PConnections: number,
+    activeSFUConnections: number,
+    timestamp: number,
   ): Promise<MeetingMemberSnapshot> {
     const meetingMemberSnapshot = new MeetingMemberSnapshot(
       new ObjectId().toHexString(),
@@ -28,6 +31,9 @@ export class MeetingMemberSnapshotFactory
       meetingMemberId,
       p2pSnapshots,
       sfuSnapshots,
+      activeP2PConnections,
+      activeSFUConnections,
+      timestamp,
     );
     await this.meetingMemberSnapshotEntityRepository.create(
       meetingMemberSnapshot,
